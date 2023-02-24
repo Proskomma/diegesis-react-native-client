@@ -214,7 +214,7 @@ export default function App() {
                             name="stepbackward"
                             onPress={() => backwardStepClick()}
                           />
-                          <Text>{"                         "}</Text>
+                          <Text>{"                                 "}</Text>
                           <AntDesign
                             style={styles.forwardArrow}
                             name="stepforward"
@@ -267,7 +267,7 @@ export default function App() {
                             name="stepbackward"
                             onPress={() => backwardStepClick()}
                           />
-                          <Text>{"                         "}</Text>
+                          <Text>{"                                 "}</Text>
                           <AntDesign
                             style={styles.forwardArrow}
                             name="stepforward"
