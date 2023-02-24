@@ -61,6 +61,10 @@ export default function App() {
           id 
           bookCode : header(id:"bookCode")
         }
+        tagsKv{
+          key
+          value
+        }
       }
     }`;
       setResult(pk.gqlQuerySync(query));
@@ -113,17 +117,25 @@ export default function App() {
       setSelectedChapter(selectedChapter + 1);
     }
   };
+
   return (
     <ApolloProvider client={client}>
       <NativeBaseProvider>
         <ScrollView style={styles.container}>
           <View>
             <View style={styles.modalView}>
-              <Text style={styles.titleText}> Content {"\n"}</Text>
               {!result ? (
                 <Text style={styles.centeredView}>Loading ...</Text>
               ) : (
                 <>
+                  <Text style={styles.titleText}>
+                    {
+                      result?.data?.docSet?.tagsKv.filter(
+                        (t) => t.key === "title"
+                      )[0].value
+                    }{" "}
+                    {"\n"}
+                  </Text>
                   {
                     <View>
                       <Text style={styles.listStyle}>
@@ -194,19 +206,22 @@ export default function App() {
                     </Text>
                   ) : (
                     <>
-                      {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && <View style={styles.head}>
-                        <AntDesign
-                          style={styles.backwardArrow}
-                          name="stepbackward"
-                          onPress={() => backwardStepClick()}
-                        />
-                        <Text>{"                         "}</Text>
-                        <AntDesign
-                          style={styles.forwardArrow}
-                          name="stepforward"
-                          onPress={() => forwardStepClick()}
-                        />
-                      </View>}
+                      {textBlocks?.data?.docSet?.document?.mainSequence
+                        ?.blocks && (
+                        <View style={styles.head}>
+                          <AntDesign
+                            style={styles.backwardArrow}
+                            name="stepbackward"
+                            onPress={() => backwardStepClick()}
+                          />
+                          <Text>{"                         "}</Text>
+                          <AntDesign
+                            style={styles.forwardArrow}
+                            name="stepforward"
+                            onPress={() => forwardStepClick()}
+                          />
+                        </View>
+                      )}
                       {textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
                         (b, n) => (
                           <View key={n}>
@@ -244,19 +259,22 @@ export default function App() {
                           </View>
                         )
                       )}
-                      {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && <View style={styles.head}>
-                        <AntDesign
-                          style={styles.backwardArrow}
-                          name="stepbackward"
-                          onPress={() => backwardStepClick()}
-                        />
-                        <Text>{"                         "}</Text>
-                        <AntDesign
-                          style={styles.forwardArrow}
-                          name="stepforward"
-                          onPress={() => forwardStepClick()}
-                        />
-                      </View>}
+                      {textBlocks?.data?.docSet?.document?.mainSequence
+                        ?.blocks && (
+                        <View style={styles.head}>
+                          <AntDesign
+                            style={styles.backwardArrow}
+                            name="stepbackward"
+                            onPress={() => backwardStepClick()}
+                          />
+                          <Text>{"                         "}</Text>
+                          <AntDesign
+                            style={styles.forwardArrow}
+                            name="stepforward"
+                            onPress={() => forwardStepClick()}
+                          />
+                        </View>
+                      )}
                     </>
                   )}
                 </>
@@ -294,7 +312,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    marginTop:"15%"
+    marginTop: "15%",
   },
   textStyle: {
     color: "red",
