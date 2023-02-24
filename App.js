@@ -9,7 +9,7 @@ import {
   InMemoryCache,
 } from "@apollo/client";
 import { Select, NativeBaseProvider, CheckIcon } from "native-base";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { AntDesign } from "@expo/vector-icons";
 const pk = new Proskomma([
   {
     name: "source",
@@ -37,6 +37,8 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [textBlocks, setTextBlocks] = useState(null);
   const [bookCode, setBookCode] = useState("");
+  const [bookChapters, setBookChapters] = useState([]);
+  const [selectedChapter, setSelectedChapter] = useState(null);
   // runs once, when the page is rendered
   useEffect(() => {
     const doOrgs = async () => {
@@ -69,13 +71,26 @@ export default function App() {
   useEffect(() => {
     const query = `{ docSet (id:"eBible_engBBE_2020-04-17") 
       { 
+        document(bookCode :"${bookCode}")
+          {
+            cIndexes {
+              chapter
+            }
+          }
+      }
+    }`;
+    setBookChapters(pk.gqlQuerySync(query));
+  }, [bookCode]);
+
+  useEffect(() => {
+    const query = `{ docSet (id:"eBible_engBBE_2020-04-17") 
+      { 
         id
         document(bookCode :"${bookCode}")
           {
             mainSequence 
             {
-              blocksText
-              blocks { 
+              blocks(withScopes:"chapter/${selectedChapter}") { 
                 items {
                   type subType payload
                 }
@@ -85,8 +100,19 @@ export default function App() {
       }
     }`;
     setTextBlocks(pk.gqlQuerySync(query));
-  }, [bookCode]);
-  
+  }, [bookCode, selectedChapter]);
+
+  const backwardStepClick = () => {
+    if (selectedChapter > 1) {
+      setSelectedChapter(selectedChapter - 1);
+    }
+  };
+
+  const forwardStepClick = () => {
+    if (selectedChapter < bookChapters.data.docSet.document.cIndexes.length) {
+      setSelectedChapter(selectedChapter + 1);
+    }
+  };
   return (
     <ApolloProvider client={client}>
       <NativeBaseProvider>
@@ -117,7 +143,7 @@ export default function App() {
                         {result?.data?.docSet?.documents?.map((kv, n) => (
                           <Select.Item
                             key={n}
-                            value={kv["bookCode"]}
+                            value={kv["bookCode"].toString()}
                             label={kv["bookCode"]}
                             onPress={() => setBookCode(kv["bookCode"])}
                             style={styles.textStyle}
@@ -132,27 +158,106 @@ export default function App() {
                       No Book Selected Yet ...
                     </Text>
                   ) : (
-                    textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
-                      (b, n) => (
-                        <View key={n}>
-                          <Text>
-                            {b.items.map((i,n)=>{
-                              if(i.type === 'token'){
-                                return i.payload
-                              }
-                              else if (i.type === 'scope' && i.subType === "start" && i.payload.startsWith('chapter')){
-                                return <Text key={n} style={styles.chapterText}>{i.payload.split('/')[1]}{"\n"}</Text>
-                              }
-                              else if (i.type === 'scope' && i.subType === "start" && i.payload.startsWith('verses')){
-                                return <Text key={n} style={styles.versesText}>{i.payload.split('/')[1]}{" "} </Text>
-                              }
-                              else {return ""}
-                            })}
-                            {"\n\n"}
-                          </Text>
-                        </View>
-                      )
-                    )
+                    <View>
+                      <Text style={styles.listStyle}>
+                        {" "}
+                        Select a specified book chapter : {"\n"}
+                      </Text>
+                      <Select
+                        placeholder="Please Choose Book Chapter"
+                        selectedValue={selectedChapter}
+                        minWidth="200"
+                        mt={1}
+                        _selectedItem={{
+                          bg: "#d3d3d3",
+                          endIcon: <CheckIcon size="5" />,
+                        }}
+                      >
+                        {bookChapters?.data?.docSet?.document?.cIndexes?.map(
+                          (c, n) => (
+                            <Select.Item
+                              key={n}
+                              value={c["chapter"].toString()}
+                              label={c["chapter"]}
+                              onPress={() => setSelectedChapter(c["chapter"])}
+                              style={styles.textStyle}
+                            ></Select.Item>
+                          )
+                        )}
+                      </Select>
+                    </View>
+                  )}
+                  <Text>{"\n\n"}</Text>
+                  {!selectedChapter && textBlocks?.data?.docSet?.document ? (
+                    <Text style={styles.centeredView}>
+                      No Chapter Selected Yet ...
+                    </Text>
+                  ) : (
+                    <>
+                      {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && <View style={styles.head}>
+                        <AntDesign
+                          style={styles.backwardArrow}
+                          name="stepbackward"
+                          onPress={() => backwardStepClick()}
+                        />
+                        <Text>{"                         "}</Text>
+                        <AntDesign
+                          style={styles.forwardArrow}
+                          name="stepforward"
+                          onPress={() => forwardStepClick()}
+                        />
+                      </View>}
+                      {textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
+                        (b, n) => (
+                          <View key={n}>
+                            <Text>
+                              {b.items.map((i, n) => {
+                                if (i.type === "token") {
+                                  return i.payload;
+                                } else if (
+                                  i.type === "scope" &&
+                                  i.subType === "start" &&
+                                  i.payload.startsWith("chapter")
+                                ) {
+                                  return (
+                                    <Text key={n} style={styles.chapterText}>
+                                      {i.payload.split("/")[1]}
+                                      {"\n"}
+                                    </Text>
+                                  );
+                                } else if (
+                                  i.type === "scope" &&
+                                  i.subType === "start" &&
+                                  i.payload.startsWith("verses")
+                                ) {
+                                  return (
+                                    <Text key={n} style={styles.versesText}>
+                                      {i.payload.split("/")[1]}{" "}
+                                    </Text>
+                                  );
+                                } else {
+                                  return "";
+                                }
+                              })}
+                              {"\n\n"}
+                            </Text>
+                          </View>
+                        )
+                      )}
+                      {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && <View style={styles.head}>
+                        <AntDesign
+                          style={styles.backwardArrow}
+                          name="stepbackward"
+                          onPress={() => backwardStepClick()}
+                        />
+                        <Text>{"                         "}</Text>
+                        <AntDesign
+                          style={styles.forwardArrow}
+                          name="stepforward"
+                          onPress={() => forwardStepClick()}
+                        />
+                      </View>}
+                    </>
                   )}
                 </>
               )}
@@ -189,6 +294,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    marginTop:"15%"
   },
   textStyle: {
     color: "red",
@@ -216,20 +322,34 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 20,
     fontWeight: "bold",
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
   },
-  chapterText : {
-    textAlign:'left',
+  chapterText: {
+    textAlign: "left",
     fontWeight: "bold",
-    fontSize:40
+    fontSize: 40,
   },
   versesText: {
     marginRight: 10,
     fontWeight: "bold",
-    fontSize:12,
-    verticalAlign:"top"
-  }
+    fontSize: 12,
+    verticalAlign: "top",
+  },
+  head: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  backwardArrow: {
+    marginTop: "2%",
+    textAlign: "left",
+    color: "black",
+    fontSize: 20,
+  },
+  forwardArrow: {
+    marginTop: "2%",
+    textAlign: "right",
+    color: "black",
+    fontSize: 20,
+  },
 });
