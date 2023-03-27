@@ -22,7 +22,7 @@ const pk = new Proskomma([
   },
 ]);
 
-export default function DetailsComponent() {
+export default function DetailsScreen({source,id,revision}) {
   const client = new ApolloClient({
     uri: "https://diegesis.bible/graphql",
     cache: new InMemoryCache(),
@@ -39,7 +39,7 @@ export default function DetailsComponent() {
       const result = await memoClient.query({
         query: gql`
           {
-            localEntry(source: "eBible", id: "engBBE", revision: "2020-04-17") {
+            localEntry(source: "${source}", id: "${id}", revision: "${revision}") {
               canonResource(type: "succinct") {
                 content
               }
@@ -49,7 +49,7 @@ export default function DetailsComponent() {
       });
       const succinct = result.data.localEntry.canonResource.content;
       pk.loadSuccinctDocSet(JSON.parse(succinct));
-      const query = `{ docSet (id:"eBible_engBBE_2020-04-17") 
+      const query = `{ docSet (id:"${source}_${id}_${revision}") 
             { id 
               documents{
                 id 
@@ -64,10 +64,10 @@ export default function DetailsComponent() {
       setResult(pk.gqlQuerySync(query));
     };
     doOrgs();
-  }, []);
+  }, [source,id,revision]);
 
   useEffect(() => {
-    const query = `{ docSet (id:"eBible_engBBE_2020-04-17") 
+    const query = `{ docSet (id:"${source}_${id}_${revision}") 
             { 
               document(bookCode :"${bookCode}")
                 {
@@ -78,10 +78,9 @@ export default function DetailsComponent() {
             }
           }`;
     setBookChapters(pk.gqlQuerySync(query));
-  }, [bookCode]);
-
+  }, [bookCode,source,id,revision]);
   useEffect(() => {
-    const query = `{ docSet (id:"eBible_engBBE_2020-04-17") 
+    const query = `{ docSet (id:"${source}_${id}_${revision}") 
             { 
               id
               document(bookCode :"${bookCode}")
@@ -111,6 +110,7 @@ export default function DetailsComponent() {
       setSelectedChapter(selectedChapter + 1);
     }
   };
+
   return (
     <ScrollView style={styles.container}>
       <View>

@@ -1,11 +1,13 @@
 import { Spinner } from "native-base";
 import { useState } from "react";
-import { StyleSheet, Text, ScrollView, View, Linking } from "react-native";
+import { StyleSheet, Text, ScrollView, View } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
 import { searchQuery } from "../lib/search";
-import { BR} from "@expo/html-elements";
-import { useRouter } from "expo-router";
+import { BR } from "@expo/html-elements";
+import Footer from "../components/Footer";
+import DetailsScreen from "./DetailsScreen";
+import Header from "../components/Header";
 const pk = new Proskomma([
   {
     name: "source",
@@ -24,11 +26,12 @@ const pk = new Proskomma([
   },
 ]);
 
-export default function ListComponent() {
-  const router = useRouter();
-  const [source, setSource] = useState("");
-  const [transId, setTransId] = useState("");
-  const [revision, setRevision] = useState("");
+export default function ListScreen({navigation}) {
+  const [currentVersion, setCurrentVersion] = useState({
+    source: "",
+    transId: "",
+    revision: "",
+  });
   const [searchOrg, setSearchOrg] = useState("all");
   const [searchOwner, setSearchOwner] = useState("");
   const [searchType, setSearchType] = useState("");
@@ -85,20 +88,17 @@ export default function ListComponent() {
     return <GqlError error={error} />;
   }
 
-  console.log(source);
-  console.log(revision);
-  console.log(transId);
   return (
     <ScrollView style={styles.container}>
-      <View>
-        <Text style={styles.titleText}>List Page</Text>
+      <Header navigation={navigation}/>
+      <View style={styles.modalView}>
         <View>
           {data.localEntries?.map((el, kv) => {
             return (
-              <View>
+              <View key={kv}>
                 <Text>
                   <Text>Book Number :</Text>
-                  <Text>{kv}</Text>
+                  <Text>{kv + 1}</Text>
                 </Text>
                 <Text>
                   <Text>Resource Types : </Text>
@@ -116,9 +116,12 @@ export default function ListComponent() {
                   <Text>Title : </Text>
                   <Text
                     onPress={() => {
-                      setSource(el.source);
-                      setTransId(el.transId);
-                      setRevision(el.revision);
+                      setCurrentVersion({
+                        ...currentVersion,
+                        source : el.source,
+                        transId : el.transId,
+                        revision : el.revision.replace(/\s/g, "__"),
+                      });
                     }}
                     style={styles.clickableText}
                   >
@@ -130,7 +133,11 @@ export default function ListComponent() {
             );
           })}
         </View>
+        {currentVersion.source !== "" && currentVersion.transId !== "" && currentVersion.revision !== "" && (
+          <DetailsScreen source={currentVersion.source} id={currentVersion.transId} revision={currentVersion.revision} />
+        )}
       </View>
+      <Footer />
     </ScrollView>
   );
 }
@@ -145,7 +152,10 @@ const styles = StyleSheet.create({
   clickableText: {
     color: "blue",
   },
-  container: { flex: 1, paddingTop: 30 },
+  container: { flex: 1 },
   head: { height: 40, backgroundColor: "#f1f8ff" },
   text: { margin: 6 },
+  modalView: {
+    margin: 10,
+  },
 });
