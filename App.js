@@ -2,7 +2,6 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NativeBaseProvider } from "native-base";
-import Header from "./components/Header";
 import DetailsScreen from "./screens/DetailsScreen";
 import HomeScreen from "./screens/HomeScreen";
 import HowScreen from "./screens/HowScreren";
@@ -23,8 +22,8 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="How" component={HowScreen} />
             <Stack.Screen name="Who" component={WhoScreen} />
-            <Stack.Screen name="List Page" component={ListScreen} />
-            <Stack.Screen name="Version Details" component={DetailsScreen}/>
+            <Stack.Screen name="List" component={ListScreen} />
+            <Stack.Screen name="Details" component={DetailsScreen}/>
           </Stack.Navigator>
         </NavigationContainer>
       </NativeBaseProvider>

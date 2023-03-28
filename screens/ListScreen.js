@@ -4,9 +4,8 @@ import { StyleSheet, Text, ScrollView, View } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
 import { searchQuery } from "../lib/search";
-import { BR } from "@expo/html-elements";
+import { Table, TBody, TD, TH, THead, TR } from "@expo/html-elements";
 import Footer from "../components/Footer";
-import DetailsScreen from "./DetailsScreen";
 import Header from "../components/Header";
 const pk = new Proskomma([
   {
@@ -26,12 +25,7 @@ const pk = new Proskomma([
   },
 ]);
 
-export default function ListScreen({navigation}) {
-  const [currentVersion, setCurrentVersion] = useState({
-    source: "",
-    transId: "",
-    revision: "",
-  });
+export default function ListScreen({ navigation }) {
   const [searchOrg, setSearchOrg] = useState("all");
   const [searchOwner, setSearchOwner] = useState("");
   const [searchType, setSearchType] = useState("");
@@ -79,8 +73,6 @@ export default function ListScreen({navigation}) {
     `
   );
 
-  const tableHead = ["Resource Types", "Source", "Language", "Title"];
-
   if (loading) {
     return <Spinner />;
   }
@@ -90,52 +82,42 @@ export default function ListScreen({navigation}) {
 
   return (
     <ScrollView style={styles.container}>
-      <Header navigation={navigation}/>
+      <Header navigation={navigation} />
       <View style={styles.modalView}>
         <View>
-          {data.localEntries?.map((el, kv) => {
-            return (
-              <View key={kv}>
-                <Text>
-                  <Text>Book Number :</Text>
-                  <Text>{kv + 1}</Text>
-                </Text>
-                <Text>
-                  <Text>Resource Types : </Text>
-                  <Text>{el.types}</Text>
-                </Text>
-                <Text>
-                  <Text>Source : </Text>
-                  <Text>{`${el.owner}@${el.source}`}</Text>
-                </Text>
-                <Text>
-                  <Text>Language : </Text>
-                  <Text>{el.language}</Text>
-                </Text>
-                <Text>
-                  <Text>Title : </Text>
-                  <Text
-                    onPress={() => {
-                      setCurrentVersion({
-                        ...currentVersion,
-                        source : el.source,
-                        transId : el.transId,
-                        revision : el.revision.replace(/\s/g, "__"),
-                      });
-                    }}
-                    style={styles.clickableText}
-                  >
-                    {el.title}
-                  </Text>
-                </Text>
-                <BR />
-              </View>
-            );
-          })}
+          <Table style={styles.table}>
+            <THead>
+              <TR>
+                <TH style={styles.rows}>Resource Types</TH>
+                <TH style={styles.rows}>Source</TH>
+                <TH style={styles.rows}>Language</TH>
+                <TH style={styles.rows}>Title</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {data.localEntries?.map((el, kv) => {
+                return (
+                  <TR key={kv} style={styles.rows}>
+                    <TD style={styles.rows}>{el.types}</TD>
+                    <TD style={styles.rows}>{`${el.owner}@${el.source}`}</TD>
+                    <TD style={styles.rows}>{el.language}</TD>
+                    <TD
+                      onPress={() => {
+                        source = el.source ;
+                        id = el.transId;
+                        revision = el.revision
+                        navigation.navigate('Details', {source , id , revision});
+                      }}
+                      style={styles.clickableText}
+                    >
+                      {el.title}
+                    </TD>
+                  </TR>
+                );
+              })}
+            </TBody>
+          </Table>
         </View>
-        {currentVersion.source !== "" && currentVersion.transId !== "" && currentVersion.revision !== "" && (
-          <DetailsScreen source={currentVersion.source} id={currentVersion.transId} revision={currentVersion.revision} />
-        )}
       </View>
       <Footer />
     </ScrollView>
@@ -151,11 +133,24 @@ const styles = StyleSheet.create({
   },
   clickableText: {
     color: "blue",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "black",
   },
   container: { flex: 1 },
   head: { height: 40, backgroundColor: "#f1f8ff" },
   text: { margin: 6 },
   modalView: {
     margin: 10,
+  },
+  table: {
+    borderWidth: 2,
+    borderStyle: "solid",
+    borderRadius: "5px",
+  },
+  rows: {
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "black",
   },
 });

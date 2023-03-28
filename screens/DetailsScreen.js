@@ -22,11 +22,14 @@ const pk = new Proskomma([
   },
 ]);
 
-export default function DetailsScreen({source,id,revision}) {
+export default function DetailsScreen({navigation, route}) {
   const client = new ApolloClient({
     uri: "https://diegesis.bible/graphql",
     cache: new InMemoryCache(),
   });
+  const [source] = useState(route.params.source);
+  const [id] = useState(route.params.id);
+  const [revision] = useState(route.params.revision);
   const memoClient = useMemo(() => client);
   const [result, setResult] = useState(null);
   const [textBlocks, setTextBlocks] = useState(null);
@@ -79,6 +82,7 @@ export default function DetailsScreen({source,id,revision}) {
           }`;
     setBookChapters(pk.gqlQuerySync(query));
   }, [bookCode,source,id,revision]);
+  
   useEffect(() => {
     const query = `{ docSet (id:"${source}_${id}_${revision}") 
             { 
