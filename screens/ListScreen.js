@@ -79,7 +79,7 @@ export default function ListScreen({ navigation }) {
   if (error) {
     return <GqlError error={error} />;
   }
-
+console.log(data.localEntries)
   return (
     <ScrollView style={styles.container}>
       <Header navigation={navigation} />
@@ -105,7 +105,7 @@ export default function ListScreen({ navigation }) {
                       onPress={() => {
                         source = el.source ;
                         id = el.transId;
-                        revision = el.revision
+                        revision = el.revision;
                         navigation.navigate('Details', {source , id , revision});
                       }}
                       style={styles.clickableText}
