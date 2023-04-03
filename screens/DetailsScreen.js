@@ -4,25 +4,26 @@ import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, ScrollView, View } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
-const pk = new Proskomma([
-  {
-    name: "source",
-    type: "string",
-    regex: "^[^\\s]+$",
-  },
-  {
-    name: "project",
-    type: "string",
-    regex: "^[^\\s]+$",
-  },
-  {
-    name: "revision",
-    type: "string",
-    regex: "^[^\\s]+$",
-  },
-]);
 
-export default function DetailsScreen({navigation, route}) {
+// const pk = new Proskomma([
+//   {
+//     name: "source",
+//     type: "string",
+//     regex: "^[^\\s]+$",
+//   },
+//   {
+//     name: "project",
+//     type: "string",
+//     regex: "^[^\\s]+$",
+//   },
+//   {
+//     name: "revision",
+//     type: "string",
+//     regex: "^[^\\s]+$",
+//   },
+// ]);
+
+export default function DetailsScreen({ navigation, route }) {
   const client = new ApolloClient({
     uri: "https://diegesis.bible/graphql",
     cache: new InMemoryCache(),
@@ -36,6 +37,25 @@ export default function DetailsScreen({navigation, route}) {
   const [bookCode, setBookCode] = useState("");
   const [bookChapters, setBookChapters] = useState([]);
   const [selectedChapter, setSelectedChapter] = useState(null);
+  const [pk, setPk] = useState(
+    new Proskomma([
+      {
+        name: "source",
+        type: "string",
+        regex: "^[^\\s]+$",
+      },
+      {
+        name: "project",
+        type: "string",
+        regex: "^[^\\s]+$",
+      },
+      {
+        name: "revision",
+        type: "string",
+        regex: "^[^\\s]+$",
+      },
+    ])
+  );
   // runs once, when the page is rendered
   useEffect(() => {
     const doOrgs = async () => {
@@ -67,7 +87,7 @@ export default function DetailsScreen({navigation, route}) {
       setResult(pk.gqlQuerySync(query));
     };
     doOrgs();
-  }, [source,id,revision]);
+  }, [source, id, revision]);
 
   useEffect(() => {
     const query = `{ docSet (id:"${source}_${id}_${revision}") 
@@ -81,8 +101,8 @@ export default function DetailsScreen({navigation, route}) {
             }
           }`;
     setBookChapters(pk.gqlQuerySync(query));
-  }, [bookCode,source,id,revision]);
-  
+  }, [bookCode, source, id, revision]);
+
   useEffect(() => {
     const query = `{ docSet (id:"${source}_${id}_${revision}") 
             { 

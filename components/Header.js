@@ -1,4 +1,4 @@
-import { AntDesign, Entypo, Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 export default function Header({navigation}) {
@@ -8,7 +8,6 @@ export default function Header({navigation}) {
       <Ionicons name="people" size={24} color="black" onPress={()=>navigation.navigate('Who')}/>
       <MaterialIcons name="how-to-reg" size={24} color="black" onPress={()=>navigation.navigate('How')}/>
       <Entypo name="list" size={24} color="black" onPress={()=>navigation.navigate('List')}/>
-      <MaterialCommunityIcons name="blender" size={24} color="black" onPress={()=>navigation.navigate('Blend')}/>
     </View>
   );
 }

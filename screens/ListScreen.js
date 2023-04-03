@@ -4,7 +4,7 @@ import { StyleSheet, Text, ScrollView, View } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
 import { searchQuery } from "../lib/search";
-import { Table, TBody, TD, TH, THead, TR } from "@expo/html-elements";
+import { H2, Table, TBody, TD, TH, THead, TR } from "@expo/html-elements";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 const pk = new Proskomma([
@@ -79,11 +79,11 @@ export default function ListScreen({ navigation }) {
   if (error) {
     return <GqlError error={error} />;
   }
-console.log(data.localEntries)
   return (
     <ScrollView style={styles.container}>
       <Header navigation={navigation} />
       <View style={styles.modalView}>
+        <H2>Entries</H2>
         <View>
           <Table style={styles.table}>
             <THead>
@@ -103,10 +103,10 @@ console.log(data.localEntries)
                     <TD style={styles.rows}>{el.language}</TD>
                     <TD
                       onPress={() => {
-                        source = el.source ;
-                        id = el.transId;
-                        revision = el.revision;
-                        navigation.navigate('Details', {source , id , revision});
+                        const source = el.source ;
+                        const id = el.transId;
+                        const revision = el.revision;
+                        navigation.navigate('Details', {source, id , revision});
                       }}
                       style={styles.clickableText}
                     >
