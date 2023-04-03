@@ -6,6 +6,7 @@ import DetailsScreen from "./screens/DetailsScreen";
 import HomeScreen from "./screens/HomeScreen";
 import HowScreen from "./screens/HowScreren";
 import ListScreen from "./screens/ListScreen";
+import ReadingScreen from "./screens/ReadingScreen";
 import WhoScreen from "./screens/WhoScreen";
 
 export default function App() {
@@ -23,7 +24,8 @@ export default function App() {
             <Stack.Screen name="How" component={HowScreen} />
             <Stack.Screen name="Who" component={WhoScreen} />
             <Stack.Screen name="List" component={ListScreen} />
-            <Stack.Screen name="Details" component={DetailsScreen}/>
+            <Stack.Screen name="Details" component={DetailsScreen} />
+            <Stack.Screen name="Reading" component={ReadingScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </NativeBaseProvider>
