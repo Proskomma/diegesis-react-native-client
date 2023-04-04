@@ -1,12 +1,14 @@
 import { Spinner } from "native-base";
 import { useState } from "react";
-import { StyleSheet, Text, ScrollView, View } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
 import { searchQuery } from "../lib/search";
 import { H2, Table, TBody, TD, TH, THead, TR } from "@expo/html-elements";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { Stack, Surface, Text } from "@react-native-material/core";
+import { ActivityIndicator } from "@react-native-material/core";
 const pk = new Proskomma([
   {
     name: "source",
@@ -74,7 +76,11 @@ export default function ListScreen({ navigation }) {
   );
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <Stack fill center spacing={4}>
+        <ActivityIndicator size="large" color="cornflowerblue" />
+      </Stack>
+    );
   }
   if (error) {
     return <GqlError error={error} />;
@@ -82,9 +88,11 @@ export default function ListScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <Header navigation={navigation} />
-      <View style={styles.modalView}>
-        <H2>Entries</H2>
-        <View>
+      <Surface>
+        <Text variant="h5" style={styles.titleText}>
+          Entries
+        </Text>
+        <Surface>
           <Table style={styles.table}>
             <THead>
               <TR>
@@ -103,10 +111,14 @@ export default function ListScreen({ navigation }) {
                     <TD style={styles.rows}>{el.language}</TD>
                     <TD
                       onPress={() => {
-                        const source = el.source ;
+                        const source = el.source;
                         const id = el.transId;
                         const revision = el.revision;
-                        navigation.navigate('Details', {source, id , revision});
+                        navigation.navigate("Details", {
+                          source,
+                          id,
+                          revision,
+                        });
                       }}
                       style={styles.clickableText}
                     >
@@ -117,8 +129,8 @@ export default function ListScreen({ navigation }) {
               })}
             </TBody>
           </Table>
-        </View>
-      </View>
+        </Surface>
+      </Surface>
       <Footer />
     </ScrollView>
   );
@@ -126,10 +138,10 @@ export default function ListScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   titleText: {
-    fontSize: 20,
     fontWeight: "bold",
     justifyContent: "center",
     alignItems: "center",
+    margin: 10,
   },
   clickableText: {
     color: "blue",
@@ -138,15 +150,11 @@ const styles = StyleSheet.create({
     borderColor: "black",
   },
   container: { flex: 1 },
-  head: { height: 40, backgroundColor: "#f1f8ff" },
-  text: { margin: 6 },
-  modalView: {
-    margin: 10,
-  },
   table: {
     borderWidth: 2,
     borderStyle: "solid",
     borderRadius: "5px",
+    margin: 10,
   },
   rows: {
     borderWidth: 1,

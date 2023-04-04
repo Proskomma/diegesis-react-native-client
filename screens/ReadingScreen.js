@@ -1,9 +1,10 @@
 import { AntDesign } from "@expo/vector-icons";
-import { CheckIcon, Select, Spinner } from "native-base";
+import { CheckIcon, Select } from "native-base";
 import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, ScrollView, View } from "react-native";
 import { Proskomma } from "proskomma-core";
-import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
+import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
+import { VStack } from "@react-native-material/core";
 
 export default function ReadingScreen({ navigation, route }) {
   const client = new ApolloClient({
@@ -38,50 +39,6 @@ export default function ReadingScreen({ navigation, route }) {
       },
     ])
   );
-
-  const queryString = `query {
-    localEntry(
-      source:"""%source%"""
-      id: """%entryId%"""
-      revision: """%revision%"""
-    ) {
-      language
-      title
-      textDirection
-      script
-      copyright
-      abbreviation
-      owner
-      nOT : stat(field :"nOT")
-      nNT : stat(field :"nNT")
-      nDC : stat(field :"nDC")
-      nChapters : stat(field :"nChapters")
-      nVerses : stat(field :"nVerses")
-      bookCodes
-    }
-  }`
-    .replace("%source%", source)
-    .replace("%entryId%", id)
-    .replace("%revision%", revision);
-
-  const { loading, error, data } = useQuery(
-    gql`
-      ${queryString}
-    `
-  );
-  // if (loading) {
-  //   return <Spinner />;
-  // }
-  // if (error) {
-  //   return <GqlError error={error} />;
-  // }
-  const entryInfo = data.localEntry;
-
-  if (!entryInfo) {
-    return <Text>Processing on server - wait a while and hit "refresh"</Text>;
-  }
-
-  console.log("Entry Info : ", entryInfo);
 
   // runs once, when the page is rendered
   useEffect(() => {
@@ -212,7 +169,7 @@ export default function ReadingScreen({ navigation, route }) {
                   No Book Selected Yet ...
                 </Text>
               ) : (
-                <View>
+                <VStack>
                   <Text style={styles.listStyle}>
                     {" "}
                     Select a specified book chapter : {"\n"}
@@ -239,7 +196,7 @@ export default function ReadingScreen({ navigation, route }) {
                       )
                     )}
                   </Select>
-                </View>
+                </VStack>
               )}
               <Text>{"\n\n"}</Text>
               {!selectedChapter && textBlocks?.data?.docSet?.document ? (

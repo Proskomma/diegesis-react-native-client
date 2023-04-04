@@ -1,10 +1,12 @@
-import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
-import { CheckIcon, Select, Spinner } from "native-base";
-import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, ScrollView, View } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { CheckIcon, Select } from "native-base";
+import { useMemo, useState } from "react";
+import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
-import { H2, Table, TD, TH, TR } from "@expo/html-elements";
+import { BR } from "@expo/html-elements";
+import { ActivityIndicator, Stack } from "@react-native-material/core";
+import { Surface, Text } from "@react-native-material/core";
 
 export default function DetailsScreen({ navigation, route }) {
   const client = new ApolloClient({
@@ -58,12 +60,17 @@ export default function DetailsScreen({ navigation, route }) {
       nDC : stat(field :"nDC")
       nChapters : stat(field :"nChapters")
       nVerses : stat(field :"nVerses")
+      bookStats(bookCode: "%bookCode%"){
+        stat
+        field
+      }
       bookCodes
     }
   }`
     .replace("%source%", source)
     .replace("%entryId%", id)
-    .replace("%revision%", revision);
+    .replace("%revision%", revision)
+    .replace("%bookCode%", bookCode);
 
   const { loading, error, data } = useQuery(
     gql`
@@ -71,7 +78,11 @@ export default function DetailsScreen({ navigation, route }) {
     `
   );
   if (loading) {
-    return <Spinner />;
+    return (
+      <Stack fill center spacing={4}>
+        <ActivityIndicator size="large" color="cornflowerblue" />
+      </Stack>
+    );
   }
   if (error) {
     return <GqlError error={error} />;
@@ -82,10 +93,12 @@ export default function DetailsScreen({ navigation, route }) {
     return <Text>Processing on server - wait a while and hit "refresh"</Text>;
   }
 
+  const filteredStatsTab = entryInfo.bookStats.filter((bo) => bo.stat > 0);
+
   return (
     <ScrollView style={styles.container}>
-      <View>
-        <View style={styles.modalView}>
+      <Surface>
+        <Surface style={styles.modalView}>
           {!entryInfo ? (
             <Text style={styles.centeredView}>Loading ...</Text>
           ) : (
@@ -98,28 +111,126 @@ export default function DetailsScreen({ navigation, route }) {
                   navigation.navigate("Reading", { source, id, revision })
                 }
               />
-              <View>
-                <H2>{entryInfo.title}</H2>
-                <Text>Abrreviation : {entryInfo.abbreviation}</Text>
-                <Text>Copyright : {entryInfo.copyright}</Text>
-                <Text>
-                  Language :{" "}
-                  {`${entryInfo.language}, ${entryInfo.textDirection}`}
+              <Surface>
+                <Text variant="h5" style={styles.columnText}>
+                  {entryInfo.title}
                 </Text>
-                <Text>Data Source : {entryInfo.source}</Text>
-                <Text>Owner : {entryInfo.owner}</Text>
-                <Text>Entry ID : {id}</Text>
-                <Text>Revision : {revision}</Text>
-                <Text>
-                  Content : {`${entryInfo.nOT} OT, ${entryInfo.nNT} NT`}
+                <BR />
+                <BR />
+                <Text variant="h6" style={styles.h6}>
+                  Details
                 </Text>
-                <Text>Number of Chapters : {entryInfo.nChapters}</Text>
-                <Text>Number of Verses : {entryInfo.nVerses}</Text>
-              </View>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Abrreviation :
+                  </Text>
+                  <Text>{entryInfo.abbreviation}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Copyright :{" "}
+                  </Text>
+                  <Text>{entryInfo.copyright}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Language :{" "}
+                  </Text>
+                  <Text>{`${entryInfo.language}, ${entryInfo.textDirection}`}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Data Source :{" "}
+                  </Text>
+                  <Text>{source}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Owner :{" "}
+                  </Text>
+                  <Text>{entryInfo.owner}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Entry ID :{" "}
+                  </Text>
+                  <Text>{id}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Revision :{" "}
+                  </Text>
+                  <Text>{revision}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Content :{" "}
+                  </Text>
+                  <Text>{`${entryInfo.nOT} OT, ${entryInfo.nNT} NT`}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Number of Chapters :{" "}
+                  </Text>
+                  <Text>{entryInfo.nChapters}</Text>
+                </Text>
+                <BR></BR>
+                <Text>
+                  <Text variant="subtitle2" style={styles.columnText}>
+                    Number of Verses :{" "}
+                  </Text>
+                  <Text>{entryInfo.nVerses}</Text>
+                </Text>
+                <BR></BR>
+                <Text variant="h6" style={styles.h6}>
+                  Book Resources
+                </Text>
+                <Select
+                  placeholder="Please Choose Book Code"
+                  selectedValue={bookCode}
+                  minWidth="200"
+                  mt={1}
+                  _selectedItem={{
+                    bg: "#d3d3d3",
+                    endIcon: <CheckIcon size="5" />,
+                  }}
+                >
+                  {entryInfo?.bookCodes?.map((kv, n) => (
+                    <Select.Item
+                      key={n}
+                      value={kv.toString()}
+                      label={kv}
+                      onPress={() => setBookCode(kv)}
+                      style={styles.textStyle}
+                    ></Select.Item>
+                  ))}
+                </Select>
+                <BR></BR>
+                {bookCode !== "" &&
+                  filteredStatsTab.map((bo, n) => (
+                    <Surface key={n}>
+                      <Text>
+                        <Text variant="subtitle2" style={styles.columnText}>
+                          {bo.field.substring(1)} :{" "}
+                        </Text>
+                        <Text>{bo.stat}</Text>
+                      </Text>
+                      <BR></BR>
+                    </Surface>
+                  ))}
+              </Surface>
             </>
           )}
-        </View>
-      </View>
+        </Surface>
+      </Surface>
     </ScrollView>
   );
 }
@@ -130,10 +241,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22,
-  },
-  listStyle: {
-    flexDirection: "row",
-    alignItems: "flex-start",
   },
   modalView: {
     margin: 20,
@@ -151,48 +258,15 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginTop: "15%",
   },
-  textStyle: {
-    color: "red",
+  columnText: {
     fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 10,
   },
-  map: {
-    width: "100%",
-    height: "100%",
-  },
-  text: {
-    fontSize: 42,
-  },
-  titleText: {
-    fontSize: 20,
+  h6: {
+    textDecorationLine: "underline",
     fontWeight: "bold",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  chapterText: {
-    textAlign: "left",
-    fontWeight: "bold",
-    fontSize: 40,
-  },
-  versesText: {
-    marginRight: 10,
-    fontWeight: "bold",
-    fontSize: 12,
-    verticalAlign: "top",
-  },
-  head: {
-    flex: 1,
-    flexDirection: "row",
-  },
-  backwardArrow: {
-    marginTop: "2%",
-    textAlign: "left",
-    color: "black",
-    fontSize: 20,
-  },
-  forwardArrow: {
-    marginTop: "2%",
-    textAlign: "right",
-    color: "black",
-    fontSize: 20,
+    marginBottom: 10,
+    marginTop: 10,
   },
 });

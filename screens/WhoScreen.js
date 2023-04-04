@@ -1,23 +1,33 @@
-import { H3, H5, LI, UL } from "@expo/html-elements";
-import { StyleSheet, Text, View } from "react-native";
+import { LI, UL } from "@expo/html-elements";
+import { StyleSheet } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { ListItem, Surface, Text } from "@react-native-material/core";
 
 export default function WhoScreen({ navigation }) {
   return (
-    <View>
+    <Surface>
       <Header navigation={navigation} />
-      <H3 style={styles.h3}>Who's behind Diegesis?</H3>
-      <H5 style={styles.h3}>The Data</H5>
-      <Text style={styles.h3}>Diegesis pulls data from a number of major open-access archives
-        including:</Text>
-      <UL style={styles.h3}>
-        <LI>- The Digital Bible Library</LI>
-        <LI>- Door 43</LI>
-        <LI>- eBible</LI>
-        <LI>- Vachan</LI>
-      </UL>
-      <H5 style={styles.h3}>The Software</H5>
+      <Text variant="h5" style={styles.h3}>
+        Who's behind Diegesis?
+      </Text>
+      <Text variant="subtitle1" style={styles.h3}>
+        The Data
+      </Text>
+      <Text style={styles.paragraph}>
+        Diegesis pulls data from a number of major open-access archives
+        including:
+      </Text>
+      <Surface style={styles.paragraph}>
+        <ListItem title="The Digital Bible Library"></ListItem>
+        <ListItem title="Door 43"></ListItem>
+        <ListItem title="eBible"></ListItem>
+        <ListItem title="Vachan"></ListItem>
+      </Surface>
+
+      <Text variant="subtitle1" style={styles.h3}>
+        The Software
+      </Text>
       <Text style={styles.paragraph}>
         <Text>The Diegesis project is led by Mark Howe from </Text>
         <Text
@@ -28,13 +38,15 @@ export default function WhoScreen({ navigation }) {
         </Text>
       </Text>
       <Footer />
-    </View>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   h3: {
     marginLeft: 10,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   paragraph: {
     marginLeft: 10,

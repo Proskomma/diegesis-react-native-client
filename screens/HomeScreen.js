@@ -1,15 +1,19 @@
-import { H3, H5} from "@expo/html-elements";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { Surface, Text } from "@react-native-material/core";
+import { Linking, StyleSheet, View } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 
 export default function HomeScreen({ navigation }) {
   return (
-    <View>
+    <Surface>
       <Header navigation={navigation} />
-      <H3 style={styles.h3}>Diegesis</H3>
-      <H5 style={styles.h3}>Creative Commons Scripture Resources to Go!</H5>
-      <Text style={styles.h3}>
+      <Text variant="h5" style={styles.h3}>
+        Diegesis
+      </Text>
+      <Text variant="subtitle1" style={styles.h3}>
+        Creative Commons Scripture Resources to Go!
+      </Text>
+      <Text style={styles.paragraph}>
         Diegesis is a place to find Bibles and related resources, in a variety
         of formats, released under open licences. (In other words, you can use,
         share, improve and translate them.)
@@ -24,17 +28,19 @@ export default function HomeScreen({ navigation }) {
         </Text>
       </Text>
       <Footer />
-    </View>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   h3: {
     marginLeft: 10,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
-  paragraph:{
+  paragraph: {
     marginLeft: 10,
-    marginBottom : 10
+    marginBottom: 10,
   },
   clickableText: {
     color: "blue",
