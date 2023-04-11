@@ -1,14 +1,15 @@
-import { Spinner } from "native-base";
 import { useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
 import { searchQuery } from "../lib/search";
-import { H2, Table, TBody, TD, TH, THead, TR } from "@expo/html-elements";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { Stack, Surface, Text } from "@react-native-material/core";
+import { SimpleAccordion } from "react-native-simple-accordion";
+import { ListItem, Stack, Surface, Text } from "@react-native-material/core";
 import { ActivityIndicator } from "@react-native-material/core";
+import { AntDesign } from "@expo/vector-icons";
+import { View } from "native-base";
 const pk = new Proskomma([
   {
     name: "source",
@@ -34,6 +35,7 @@ export default function ListScreen({ navigation }) {
   const [searchLang, setSearchLang] = useState("");
   const [searchText, setSearchText] = useState("");
   const [sortField, setSortField] = useState("title");
+  const [isOpen, setIsOpen] = useState(false);
   const [features, setFeatures] = useState({
     introductions: false,
     headings: false,
@@ -45,6 +47,7 @@ export default function ListScreen({ navigation }) {
     content: false,
     occurrences: false,
   });
+
   searchTerms = {
     org: searchOrg,
     owner: searchOwner,
@@ -93,42 +96,48 @@ export default function ListScreen({ navigation }) {
           Entries
         </Text>
         <Surface>
-          <Table style={styles.table}>
-            <THead>
-              <TR>
-                <TH style={styles.rows}>Resource Types</TH>
-                <TH style={styles.rows}>Source</TH>
-                <TH style={styles.rows}>Language</TH>
-                <TH style={styles.rows}>Title</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {data.localEntries?.map((el, kv) => {
-                return (
-                  <TR key={kv} style={styles.rows}>
-                    <TD style={styles.rows}>{el.types}</TD>
-                    <TD style={styles.rows}>{`${el.owner}@${el.source}`}</TD>
-                    <TD style={styles.rows}>{el.language}</TD>
-                    <TD
-                      onPress={() => {
-                        const source = el.source;
-                        const id = el.transId;
-                        const revision = el.revision;
-                        navigation.navigate("Details", {
-                          source,
-                          id,
-                          revision,
-                        });
-                      }}
-                      style={styles.clickableText}
-                    >
-                      {el.title}
-                    </TD>
-                  </TR>
-                );
-              })}
-            </TBody>
-          </Table>
+          {data.localEntries?.map((el, kv) => {
+            return (
+              <Surface key={kv}>
+                <SimpleAccordion
+                  title={el.title}
+                  viewInside={
+                    <Surface>
+                      <ListItem
+                        title={<Text>Resource types : {el.types}</Text>}
+                        pressEffect="none"
+                      />
+                      <ListItem
+                        title={
+                          <Text>Source : {`${el.owner}@${el.source}`}</Text>
+                        }
+                        pressEffect="none"
+                      />
+                      <ListItem
+                        title={<Text>Language Code : {el.language}</Text>}
+                        pressEffect="none"
+                      />
+                      <ListItem
+                        title={"click for more details"}
+                        onPress={() => {
+                          const source = el.source;
+                          const id = el.transId;
+                          const revision = el.revision;
+                          navigation.navigate("Details", {
+                            source,
+                            id,
+                            revision,
+                          });
+                        }}
+                        color="blue"
+                      />
+                    </Surface>
+                  }
+                  bannerStyle={{ backgroundColor: "whitesmoke" }}
+                />
+              </Surface>
+            );
+          })}
         </Surface>
       </Surface>
       <Footer />
@@ -153,7 +162,6 @@ const styles = StyleSheet.create({
   table: {
     borderWidth: 2,
     borderStyle: "solid",
-    borderRadius: "5px",
     margin: 10,
   },
   rows: {

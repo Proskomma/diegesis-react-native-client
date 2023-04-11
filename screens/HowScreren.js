@@ -1,7 +1,6 @@
-import { StyleSheet } from "react-native";
+import { Linking, StyleSheet } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-
 import { Surface, Text } from "@react-native-material/core";
 
 export default function HowScreen({ navigation }) {

@@ -1,10 +1,11 @@
 import { AntDesign } from "@expo/vector-icons";
 import { CheckIcon, Select } from "native-base";
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, ScrollView, View } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
-import { VStack } from "@react-native-material/core";
+import { AppBar, VStack } from "@react-native-material/core";
+import { Surface, Text } from "@react-native-material/core";
 
 export default function ReadingScreen({ navigation, route }) {
   const client = new ApolloClient({
@@ -121,8 +122,8 @@ export default function ReadingScreen({ navigation, route }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View>
-        <View style={styles.modalView}>
+      <Surface>
+        <Surface style={styles.modalView}>
           {!result ? (
             <Text style={styles.centeredView}>Loading ...</Text>
           ) : (
@@ -136,7 +137,7 @@ export default function ReadingScreen({ navigation, route }) {
                 {"\n"}
               </Text>
               {
-                <View>
+                <Surface>
                   <Text style={styles.listStyle}>
                     {" "}
                     Select a book code : {"\n"}
@@ -161,7 +162,7 @@ export default function ReadingScreen({ navigation, route }) {
                       ></Select.Item>
                     ))}
                   </Select>
-                </View>
+                </Surface>
               }
               <Text>{"\n\n"}</Text>
               {!textBlocks?.data?.docSet?.document ? (
@@ -206,23 +207,29 @@ export default function ReadingScreen({ navigation, route }) {
               ) : (
                 <>
                   {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
-                    <View style={styles.head}>
-                      <AntDesign
-                        style={styles.backwardArrow}
-                        name="stepbackward"
-                        onPress={() => backwardStepClick()}
+                    <Surface>
+                      <AppBar
+                        leading={() => (
+                          <AntDesign
+                            name="caretleft"
+                            style={styles.backwardArrow}
+                            onPress={() => backwardStepClick()}
+                          />
+                        )}
+                        trailing={() => (
+                          <AntDesign
+                            name="caretright"
+                            style={styles.forwardArrow}
+                            onPress={() => forwardStepClick()}
+                          />
+                        )}
+                        transparent="true"
                       />
-                      <Text>{"                                 "}</Text>
-                      <AntDesign
-                        style={styles.forwardArrow}
-                        name="stepforward"
-                        onPress={() => forwardStepClick()}
-                      />
-                    </View>
+                    </Surface>
                   )}
                   {textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
                     (b, n) => (
-                      <View key={n}>
+                      <Surface key={n}>
                         <Text>
                           {b.items.map((i, n) => {
                             if (i.type === "token") {
@@ -254,30 +261,36 @@ export default function ReadingScreen({ navigation, route }) {
                           })}
                           {"\n\n"}
                         </Text>
-                      </View>
+                      </Surface>
                     )
                   )}
                   {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
-                    <View style={styles.head}>
-                      <AntDesign
-                        style={styles.backwardArrow}
-                        name="stepbackward"
-                        onPress={() => backwardStepClick()}
+                    <Surface>
+                      <AppBar
+                        leading={() => (
+                          <AntDesign
+                            name="caretleft"
+                            style={styles.backwardArrow}
+                            onPress={() => backwardStepClick()}
+                          />
+                        )}
+                        trailing={() => (
+                          <AntDesign
+                            name="caretright"
+                            style={styles.forwardArrow}
+                            onPress={() => forwardStepClick()}
+                          />
+                        )}
+                        transparent="true"
                       />
-                      <Text>{"                                 "}</Text>
-                      <AntDesign
-                        style={styles.forwardArrow}
-                        name="stepforward"
-                        onPress={() => forwardStepClick()}
-                      />
-                    </View>
+                    </Surface>
                   )}
                 </>
               )}
             </>
           )}
-        </View>
-      </View>
+        </Surface>
+      </Surface>
     </ScrollView>
   );
 }

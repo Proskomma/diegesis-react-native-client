@@ -1,34 +1,35 @@
 import { AntDesign, Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, View } from "react-native";
+import { VStack } from "@react-native-material/core";
+import { StyleSheet } from "react-native";
 
 export default function Header({ navigation }) {
   return (
-    <View style={styles.header}>
+    <VStack style={styles.header}>
       <AntDesign
         name="home"
         size={24}
-        color="black"
+        color="white"
         onPress={() => navigation.navigate("Home")}
       />
       <Ionicons
         name="people"
         size={24}
-        color="black"
+        color="white"
         onPress={() => navigation.navigate("Who")}
       />
       <MaterialIcons
         name="how-to-reg"
         size={24}
-        color="black"
+        color="white"
         onPress={() => navigation.navigate("How")}
       />
       <Entypo
         name="list"
         size={24}
-        color="black"
+        color="white"
         onPress={() => navigation.navigate("List")}
       />
-    </View>
+    </VStack>
   );
 }
 const styles = StyleSheet.create({

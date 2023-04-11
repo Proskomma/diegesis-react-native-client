@@ -1,5 +1,5 @@
 import { Surface, Text } from "@react-native-material/core";
-import { Linking, StyleSheet, View } from "react-native";
+import { Linking, StyleSheet } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 
@@ -45,5 +45,9 @@ const styles = StyleSheet.create({
   clickableText: {
     color: "blue",
     textDecorationLine: "underline",
+  },
+  styledButton: {
+    width: "20%",
+    alignSelf: "center",
   },
 });

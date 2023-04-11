@@ -1,5 +1,5 @@
 import { LI, UL } from "@expo/html-elements";
-import { StyleSheet } from "react-native";
+import { Linking, StyleSheet } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { ListItem, Surface, Text } from "@react-native-material/core";

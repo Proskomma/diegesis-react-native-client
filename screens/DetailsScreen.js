@@ -1,8 +1,7 @@
 import { FontAwesome5 } from "@expo/vector-icons";
 import { CheckIcon, Select } from "native-base";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
-import { Proskomma } from "proskomma-core";
 import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import { BR } from "@expo/html-elements";
 import { ActivityIndicator, Stack } from "@react-native-material/core";
@@ -16,31 +15,7 @@ export default function DetailsScreen({ navigation, route }) {
   const [source] = useState(route.params.source);
   const [id] = useState(route.params.id);
   const [revision] = useState(route.params.revision);
-  const memoClient = useMemo(() => client);
-  const [result, setResult] = useState(null);
-  const [textBlocks, setTextBlocks] = useState(null);
   const [bookCode, setBookCode] = useState("");
-  const [bookChapters, setBookChapters] = useState([]);
-  const [selectedChapter, setSelectedChapter] = useState(null);
-  const [pk, setPk] = useState(
-    new Proskomma([
-      {
-        name: "source",
-        type: "string",
-        regex: "^[^\\s]+$",
-      },
-      {
-        name: "project",
-        type: "string",
-        regex: "^[^\\s]+$",
-      },
-      {
-        name: "revision",
-        type: "string",
-        regex: "^[^\\s]+$",
-      },
-    ])
-  );
 
   const queryString = `query {
     localEntry(
