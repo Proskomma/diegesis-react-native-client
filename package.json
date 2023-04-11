@@ -34,8 +34,7 @@
     "react-native-simple-accordion": "^1.17.0",
     "react-native-table-component": "^1.2.2",
     "react-native-web": "~0.18.9",
-    "react-router-dom": "^6.9.0",
-    "undefined": "@expo/vector-icons/MaterialCommunityIcons"
+    "react-router-dom": "^6.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

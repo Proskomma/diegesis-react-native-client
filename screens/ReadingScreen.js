@@ -119,7 +119,7 @@ export default function ReadingScreen({ navigation, route }) {
       setSelectedChapter(selectedChapter + 1);
     }
   };
-
+  console.log(selectedChapter);
   return (
     <ScrollView style={styles.container}>
       <Surface>

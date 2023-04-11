@@ -118,7 +118,11 @@ export default function ListScreen({ navigation }) {
                         pressEffect="none"
                       />
                       <ListItem
-                        title={"click for more details"}
+                        title={
+                          <Text style={styles.clickableText}>
+                            click for more details ...
+                          </Text>
+                        }
                         onPress={() => {
                           const source = el.source;
                           const id = el.transId;
