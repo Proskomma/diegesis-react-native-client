@@ -4,8 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
-import { AppBar, VStack } from "@react-native-material/core";
+import {
+  ActivityIndicator,
+  AppBar,
+  Flex,
+  VStack,
+} from "@react-native-material/core";
 import { Surface, Text } from "@react-native-material/core";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import BookCodeSelector from "../components/BookCodeSelector";
 
 export default function ReadingScreen({ navigation, route }) {
   const client = new ApolloClient({
@@ -15,12 +23,13 @@ export default function ReadingScreen({ navigation, route }) {
   const [source] = useState(route.params.source);
   const [id] = useState(route.params.id);
   const [revision] = useState(route.params.revision);
+  const [entryInfo] = useState(route.params.entryInfo);
   const memoClient = useMemo(() => client);
   const [result, setResult] = useState(null);
   const [textBlocks, setTextBlocks] = useState(null);
   const [bookCode, setBookCode] = useState("");
   const [bookChapters, setBookChapters] = useState([]);
-  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(1);
   const [pk, setPk] = useState(
     new Proskomma([
       {
@@ -119,15 +128,20 @@ export default function ReadingScreen({ navigation, route }) {
       setSelectedChapter(selectedChapter + 1);
     }
   };
-  console.log(selectedChapter);
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} indicatorStyle="white">
       <Surface>
+        <Header navigation={navigation} />
         <Surface style={styles.modalView}>
-          {!result ? (
-            <Text style={styles.centeredView}>Loading ...</Text>
-          ) : (
-            <>
+          {!result && (
+            <VStack>
+              <ActivityIndicator size="large" color="cornflowerblue" />
+              <Text style={styles.centeredView}>Loading ...</Text>
+            </VStack>
+          )}
+          {result && (
+            <Surface>
               <Text style={styles.titleText}>
                 {
                   result?.data?.docSet?.tagsKv.filter(
@@ -136,49 +150,29 @@ export default function ReadingScreen({ navigation, route }) {
                 }{" "}
                 {"\n"}
               </Text>
-              {
-                <Surface>
-                  <Text style={styles.listStyle}>
-                    {" "}
-                    Select a book code : {"\n"}
-                  </Text>
-                  <Select
-                    placeholder="Please Choose Book Code"
-                    selectedValue={bookCode}
-                    minWidth="200"
-                    mt={1}
-                    _selectedItem={{
-                      bg: "#d3d3d3",
-                      endIcon: <CheckIcon size="5" />,
-                    }}
-                  >
-                    {result?.data?.docSet?.documents?.map((kv, n) => (
-                      <Select.Item
-                        key={n}
-                        value={kv["bookCode"].toString()}
-                        label={kv["bookCode"]}
-                        onPress={() => setBookCode(kv["bookCode"])}
-                        style={styles.textStyle}
-                      ></Select.Item>
-                    ))}
-                  </Select>
-                </Surface>
-              }
-              <Text>{"\n\n"}</Text>
-              {!textBlocks?.data?.docSet?.document ? (
+              <VStack>
+                <BookCodeSelector
+                  label={"Select book"}
+                  bookcodes={entryInfo?.bookCodes}
+                  bookCode={bookCode}
+                  setBookCode={setBookCode}
+                />
+                <Text>{"\n\n"}</Text>
+              </VStack>
+              {!bookCode && !textBlocks?.data?.docSet?.document ? (
                 <Text style={styles.centeredView}>
                   No Book Selected Yet ...
                 </Text>
               ) : (
-                <VStack>
-                  <Text style={styles.listStyle}>
+                <Flex direction="row">
+                  <Text style={{ marginTop: 7 }}>
                     {" "}
-                    Select a specified book chapter : {"\n"}
+                    Select a chapter : {"\n"}
                   </Text>
                   <Select
-                    placeholder="Please Choose Book Chapter"
+                    placeholder="Please Choose Chapter"
+                    defaultValue={selectedChapter}
                     selectedValue={selectedChapter}
-                    minWidth="200"
                     mt={1}
                     _selectedItem={{
                       bg: "#d3d3d3",
@@ -189,15 +183,15 @@ export default function ReadingScreen({ navigation, route }) {
                       (c, n) => (
                         <Select.Item
                           key={n}
-                          value={c["chapter"].toString()}
-                          label={c["chapter"]}
-                          onPress={() => setSelectedChapter(c["chapter"])}
+                          value={c.chapter}
+                          label={c.chapter}
+                          onPress={() => setSelectedChapter(c.chapter)}
                           style={styles.textStyle}
                         ></Select.Item>
                       )
                     )}
                   </Select>
-                </VStack>
+                </Flex>
               )}
               <Text>{"\n\n"}</Text>
               {!selectedChapter && textBlocks?.data?.docSet?.document ? (
@@ -287,9 +281,10 @@ export default function ReadingScreen({ navigation, route }) {
                   )}
                 </>
               )}
-            </>
+            </Surface>
           )}
         </Surface>
+        <Footer />
       </Surface>
     </ScrollView>
   );

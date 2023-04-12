@@ -5,6 +5,12 @@ import { StyleSheet } from "react-native";
 export default function Header({ navigation }) {
   return (
     <VStack style={styles.header}>
+      <Entypo
+        name="list"
+        size={24}
+        color="white"
+        onPress={() => navigation.navigate("List")}
+      />
       <AntDesign
         name="home"
         size={24}
@@ -22,12 +28,6 @@ export default function Header({ navigation }) {
         size={24}
         color="white"
         onPress={() => navigation.navigate("How")}
-      />
-      <Entypo
-        name="list"
-        size={24}
-        color="white"
-        onPress={() => navigation.navigate("List")}
       />
     </VStack>
   );

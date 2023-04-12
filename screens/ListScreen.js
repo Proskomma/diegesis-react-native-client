@@ -6,10 +6,16 @@ import { searchQuery } from "../lib/search";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { SimpleAccordion } from "react-native-simple-accordion";
-import { ListItem, Stack, Surface, Text } from "@react-native-material/core";
+import {
+  ListItem,
+  Stack,
+  Surface,
+  Text,
+  VStack,
+} from "@react-native-material/core";
 import { ActivityIndicator } from "@react-native-material/core";
 import { AntDesign } from "@expo/vector-icons";
-import { View } from "native-base";
+import { Center, View } from "native-base";
 const pk = new Proskomma([
   {
     name: "source",
@@ -80,16 +86,18 @@ export default function ListScreen({ navigation }) {
 
   if (loading) {
     return (
-      <Stack fill center spacing={4}>
+      <Center flex={1} px="3">
         <ActivityIndicator size="large" color="cornflowerblue" />
-      </Stack>
+        <Text>{"\n"}</Text>
+        <Text>Loading ...</Text>
+      </Center>
     );
   }
   if (error) {
     return <GqlError error={error} />;
   }
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} indicatorStyle="white">
       <Header navigation={navigation} />
       <Surface>
         <Text variant="h5" style={styles.titleText}>
@@ -150,6 +158,12 @@ export default function ListScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
   titleText: {
     fontWeight: "bold",
     justifyContent: "center",

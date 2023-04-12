@@ -19,7 +19,7 @@ export default function App() {
     <ApolloProvider client={client}>
       <NativeBaseProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
+          <Stack.Navigator initialRouteName="List">
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="How" component={HowScreen} />
             <Stack.Screen name="Who" component={WhoScreen} />

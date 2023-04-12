@@ -1,11 +1,14 @@
 import { FontAwesome5 } from "@expo/vector-icons";
-import { CheckIcon, Select } from "native-base";
 import { useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import { BR } from "@expo/html-elements";
-import { ActivityIndicator, Stack } from "@react-native-material/core";
+import { ActivityIndicator, Stack, VStack } from "@react-native-material/core";
 import { Surface, Text } from "@react-native-material/core";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import BookCodeSelector from "../components/BookCodeSelector";
+import { Center } from "native-base";
 
 export default function DetailsScreen({ navigation, route }) {
   const client = new ApolloClient({
@@ -16,7 +19,6 @@ export default function DetailsScreen({ navigation, route }) {
   const [id] = useState(route.params.id);
   const [revision] = useState(route.params.revision);
   const [bookCode, setBookCode] = useState("");
-
   const queryString = `query {
     localEntry(
       source:"""%source%"""
@@ -54,9 +56,11 @@ export default function DetailsScreen({ navigation, route }) {
   );
   if (loading) {
     return (
-      <Stack fill center spacing={4}>
+      <Center flex={1} px="3">
         <ActivityIndicator size="large" color="cornflowerblue" />
-      </Stack>
+        <Text>{"\n"}</Text>
+        <Text>Loading ...</Text>
+      </Center>
     );
   }
   if (error) {
@@ -71,124 +75,108 @@ export default function DetailsScreen({ navigation, route }) {
   const filteredStatsTab = entryInfo.bookStats.filter((bo) => bo.stat > 0);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} indicatorStyle="white">
       <Surface>
+        <Header navigation={navigation} />
         <Surface style={styles.modalView}>
           {!entryInfo ? (
-            <Text style={styles.centeredView}>Loading ...</Text>
+            <VStack>
+              <ActivityIndicator size="large" color="cornflowerblue" />
+              <Text style={styles.centeredView}>Loading ...</Text>
+            </VStack>
           ) : (
-            <>
+            <Surface>
               <FontAwesome5
                 name="book-open"
                 size={24}
                 color="black"
                 onPress={() =>
-                  navigation.navigate("Reading", { source, id, revision })
+                  navigation.navigate("Reading", {
+                    source,
+                    id,
+                    revision,
+                    entryInfo,
+                  })
                 }
+                style={{ alignSelf: "center" }}
               />
               <Surface>
                 <Text variant="h5" style={styles.columnText}>
                   {entryInfo.title}
                 </Text>
-                <BR />
-                <BR />
                 <Text variant="h6" style={styles.h6}>
                   Details
                 </Text>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
-                    Abrreviation :
+                    Abrreviation :{" "}
                   </Text>
                   <Text>{entryInfo.abbreviation}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Copyright :{" "}
                   </Text>
                   <Text>{entryInfo.copyright}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Language :{" "}
                   </Text>
                   <Text>{`${entryInfo.language}, ${entryInfo.textDirection}`}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Data Source :{" "}
                   </Text>
                   <Text>{source}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Owner :{" "}
                   </Text>
                   <Text>{entryInfo.owner}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Entry ID :{" "}
                   </Text>
                   <Text>{id}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Revision :{" "}
                   </Text>
                   <Text>{revision}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Content :{" "}
                   </Text>
                   <Text>{`${entryInfo.nOT} OT, ${entryInfo.nNT} NT`}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Number of Chapters :{" "}
                   </Text>
                   <Text>{entryInfo.nChapters}</Text>
                 </Text>
-                <BR></BR>
                 <Text>
                   <Text variant="subtitle2" style={styles.columnText}>
                     Number of Verses :{" "}
                   </Text>
                   <Text>{entryInfo.nVerses}</Text>
                 </Text>
-                <BR></BR>
                 <Text variant="h6" style={styles.h6}>
                   Book Resources
                 </Text>
-                <Select
-                  placeholder="Please Choose Book Code"
-                  selectedValue={bookCode}
-                  minWidth="200"
-                  mt={1}
-                  _selectedItem={{
-                    bg: "#d3d3d3",
-                    endIcon: <CheckIcon size="5" />,
-                  }}
-                >
-                  {entryInfo?.bookCodes?.map((kv, n) => (
-                    <Select.Item
-                      key={n}
-                      value={kv.toString()}
-                      label={kv}
-                      onPress={() => setBookCode(kv)}
-                      style={styles.textStyle}
-                    ></Select.Item>
-                  ))}
-                </Select>
-                <BR></BR>
+                <BookCodeSelector
+                  label={"Select book"}
+                  bookcodes={entryInfo?.bookCodes}
+                  bookCode={bookCode}
+                  setBookCode={setBookCode}
+                />
+                <Text>{"\n"}</Text>
                 {bookCode !== "" &&
                   filteredStatsTab.map((bo, n) => (
                     <Surface key={n}>
@@ -202,9 +190,10 @@ export default function DetailsScreen({ navigation, route }) {
                     </Surface>
                   ))}
               </Surface>
-            </>
+            </Surface>
           )}
         </Surface>
+        <Footer />
       </Surface>
     </ScrollView>
   );
@@ -237,6 +226,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     marginTop: 10,
+    alignSelf: "center",
   },
   h6: {
     textDecorationLine: "underline",
