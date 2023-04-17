@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
@@ -14,7 +14,7 @@ import {
   VStack,
 } from "@react-native-material/core";
 import { ActivityIndicator } from "@react-native-material/core";
-import { AntDesign } from "@expo/vector-icons";
+import { DataTable } from "react-native-paper";
 import { Center, View } from "native-base";
 const pk = new Proskomma([
   {
@@ -33,7 +33,7 @@ const pk = new Proskomma([
     regex: "^[^\\s]+$",
   },
 ]);
-
+const optionsPerPage = [5, 10, 20];
 export default function ListScreen({ navigation }) {
   const [searchOrg, setSearchOrg] = useState("all");
   const [searchOwner, setSearchOwner] = useState("");
@@ -42,6 +42,13 @@ export default function ListScreen({ navigation }) {
   const [searchText, setSearchText] = useState("");
   const [sortField, setSortField] = useState("title");
   const [isOpen, setIsOpen] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(optionsPerPage[0]);
+  useEffect(() => {
+    setPage(0);
+  }, [itemsPerPage]);
+
   const [features, setFeatures] = useState({
     introductions: false,
     headings: false,

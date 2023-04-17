@@ -27,7 +27,7 @@ export default function BookCodeSelector({
         {bookcodes.map((bc, n) => (
           <Select.Item
             key={n}
-            value={bc}
+            value={bc.toString()}
             label={bc}
             onPress={() => setBookCode(bc)}
           ></Select.Item>

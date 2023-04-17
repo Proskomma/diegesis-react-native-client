@@ -1,6 +1,6 @@
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useState } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, LogBox } from "react-native";
 import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import { BR } from "@expo/html-elements";
 import { ActivityIndicator, Stack, VStack } from "@react-native-material/core";
@@ -73,7 +73,7 @@ export default function DetailsScreen({ navigation, route }) {
   }
 
   const filteredStatsTab = entryInfo.bookStats.filter((bo) => bo.stat > 0);
-
+  LogBox.ignoreAllLogs();
   return (
     <ScrollView style={styles.container} indicatorStyle="white">
       <Surface>
@@ -95,7 +95,7 @@ export default function DetailsScreen({ navigation, route }) {
                     source,
                     id,
                     revision,
-                    entryInfo,
+                    bookCode,
                   })
                 }
                 style={{ alignSelf: "center" }}
@@ -176,7 +176,6 @@ export default function DetailsScreen({ navigation, route }) {
                   bookCode={bookCode}
                   setBookCode={setBookCode}
                 />
-                <Text>{"\n"}</Text>
                 {bookCode !== "" &&
                   filteredStatsTab.map((bo, n) => (
                     <Surface key={n}>
