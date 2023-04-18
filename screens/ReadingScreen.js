@@ -87,7 +87,6 @@ export default function ReadingScreen({ navigation, route }) {
             }
           }`;
       const resultQuery = pk.gqlQuerySync(query);
-      console.log(resultQuery);
       setResult(resultQuery);
       const query2 = `{ docSet (id:"${source}_${id}_${revision}") 
             { 

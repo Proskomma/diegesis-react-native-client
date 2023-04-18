@@ -6,16 +6,11 @@ import { searchQuery } from "../lib/search";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { SimpleAccordion } from "react-native-simple-accordion";
-import {
-  ListItem,
-  Stack,
-  Surface,
-  Text,
-  VStack,
-} from "@react-native-material/core";
+import { ListItem, Surface, Text } from "@react-native-material/core";
 import { ActivityIndicator } from "@react-native-material/core";
-import { DataTable } from "react-native-paper";
-import { Center, View } from "native-base";
+import { Center, FlatList } from "native-base";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const pk = new Proskomma([
   {
     name: "source",
@@ -33,7 +28,6 @@ const pk = new Proskomma([
     regex: "^[^\\s]+$",
   },
 ]);
-const optionsPerPage = [5, 10, 20];
 export default function ListScreen({ navigation }) {
   const [searchOrg, setSearchOrg] = useState("all");
   const [searchOwner, setSearchOwner] = useState("");
@@ -41,13 +35,7 @@ export default function ListScreen({ navigation }) {
   const [searchLang, setSearchLang] = useState("");
   const [searchText, setSearchText] = useState("");
   const [sortField, setSortField] = useState("title");
-  const [isOpen, setIsOpen] = useState(false);
-
-  const [page, setPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(optionsPerPage[0]);
-  useEffect(() => {
-    setPage(0);
-  }, [itemsPerPage]);
+  const [elements, setElements] = useState([]);
 
   const [features, setFeatures] = useState({
     introductions: false,
@@ -103,6 +91,24 @@ export default function ListScreen({ navigation }) {
   if (error) {
     return <GqlError error={error} />;
   }
+
+  console.log("Local Entries :", data.localEntries);
+  const entries = JSON.stringify(data.localEntries);
+  useEffect(() => {
+    AsyncStorage.setItem("Entries", entries)
+      .then(() => console.log("Entries Stored Successfully"))
+      .catch((e) => console.error(e));
+
+    AsyncStorage.getItem("Entries")
+      .then((entries) => {
+        if (entries) {
+          setElements(JSON.parse(entries));
+          console.log("Elements :", elements);
+        }
+      })
+      .catch((e) => console.error(e));
+  }, []);
+
   return (
     <ScrollView style={styles.container} indicatorStyle="white">
       <Header navigation={navigation} />
@@ -111,7 +117,7 @@ export default function ListScreen({ navigation }) {
           Entries
         </Text>
         <Surface>
-          {data.localEntries?.map((el, kv) => {
+          {elements.map((el, kv) => {
             return (
               <Surface key={kv}>
                 <SimpleAccordion
