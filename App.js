@@ -8,25 +8,27 @@ import HowScreen from "./screens/HowScreren";
 import ListScreen from "./screens/ListScreen";
 import ReadingScreen from "./screens/ReadingScreen";
 import WhoScreen from "./screens/WhoScreen";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import EntriesScreen from "./screens/EntriesScreen";
 
 export default function App() {
   const client = new ApolloClient({
     uri: "https://diegesis.bible/graphql",
     cache: new InMemoryCache(),
   });
-  const Stack = createStackNavigator();
+
+  const Drawer = createDrawerNavigator();
+
   return (
     <ApolloProvider client={client}>
       <NativeBaseProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="List">
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="How" component={HowScreen} />
-            <Stack.Screen name="Who" component={WhoScreen} />
-            <Stack.Screen name="List" component={ListScreen} />
-            <Stack.Screen name="Details" component={DetailsScreen} />
-            <Stack.Screen name="Reading" component={ReadingScreen} />
-          </Stack.Navigator>
+          <Drawer.Navigator initialRouteName="Entries">
+            <Drawer.Screen name="Entries" component={EntriesScreen} />
+            <Drawer.Screen name="Home" component={HomeScreen} />
+            <Drawer.Screen name="How" component={HowScreen} />
+            <Drawer.Screen name="Who" component={WhoScreen} />
+          </Drawer.Navigator>
         </NavigationContainer>
       </NativeBaseProvider>
     </ApolloProvider>

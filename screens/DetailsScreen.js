@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { StyleSheet, ScrollView, LogBox } from "react-native";
 import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import { BR } from "@expo/html-elements";
-import { ActivityIndicator, Stack, VStack } from "@react-native-material/core";
+import { ActivityIndicator, FAB, VStack } from "@react-native-material/core";
 import { Surface, Text } from "@react-native-material/core";
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BookCodeSelector from "../components/BookCodeSelector";
-import { Center } from "native-base";
+import { Center, View } from "native-base";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function DetailsScreen({ navigation, route }) {
   const client = new ApolloClient({
@@ -54,6 +54,26 @@ export default function DetailsScreen({ navigation, route }) {
       ${queryString}
     `
   );
+  useEffect(() => {
+    let entry;
+    if (data) {
+      entry = JSON.stringify(data.localEntry);
+    }
+    if (entry) {
+      AsyncStorage.getAllKeys((err, keys) => {
+        if (keys.includes(`newEntry.${id}`)) {
+          console.log("Key already exists !");
+        } else {
+          AsyncStorage.setItem(`newEntry.${id}`, entry)
+            .then(() => {
+              console.log("Entry Stored Successfully");
+            })
+            .catch((e) => console.error(e));
+        }
+      });
+    }
+  }, [data]);
+
   if (loading) {
     return (
       <Center flex={1} px="3">
@@ -71,130 +91,150 @@ export default function DetailsScreen({ navigation, route }) {
   if (!entryInfo) {
     return <Text>Processing on server - wait a while and hit "refresh"</Text>;
   }
-
   const filteredStatsTab = entryInfo.bookStats.filter((bo) => bo.stat > 0);
   LogBox.ignoreAllLogs();
+
   return (
-    <ScrollView style={styles.container} indicatorStyle="white">
-      <Surface>
-        <Header navigation={navigation} />
-        <Surface style={styles.modalView}>
-          {!entryInfo ? (
-            <VStack>
-              <ActivityIndicator size="large" color="cornflowerblue" />
-              <Text style={styles.centeredView}>Loading ...</Text>
-            </VStack>
-          ) : (
-            <Surface>
-              <FontAwesome5
-                name="book-open"
-                size={24}
-                color="black"
-                onPress={() =>
-                  navigation.navigate("Reading", {
-                    source,
-                    id,
-                    revision,
-                    bookCode,
-                  })
-                }
-                style={{ alignSelf: "center" }}
-              />
-              <Surface>
-                <Text variant="h5" style={styles.columnText}>
-                  {entryInfo.title}
-                </Text>
-                <Text variant="h6" style={styles.h6}>
-                  Details
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Abrreviation :{" "}
-                  </Text>
-                  <Text>{entryInfo.abbreviation}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Copyright :{" "}
-                  </Text>
-                  <Text>{entryInfo.copyright}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Language :{" "}
-                  </Text>
-                  <Text>{`${entryInfo.language}, ${entryInfo.textDirection}`}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Data Source :{" "}
-                  </Text>
-                  <Text>{source}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Owner :{" "}
-                  </Text>
-                  <Text>{entryInfo.owner}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Entry ID :{" "}
-                  </Text>
-                  <Text>{id}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Revision :{" "}
-                  </Text>
-                  <Text>{revision}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Content :{" "}
-                  </Text>
-                  <Text>{`${entryInfo.nOT} OT, ${entryInfo.nNT} NT`}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Number of Chapters :{" "}
-                  </Text>
-                  <Text>{entryInfo.nChapters}</Text>
-                </Text>
-                <Text>
-                  <Text variant="subtitle2" style={styles.columnText}>
-                    Number of Verses :{" "}
-                  </Text>
-                  <Text>{entryInfo.nVerses}</Text>
-                </Text>
-                <Text variant="h6" style={styles.h6}>
-                  Book Resources
-                </Text>
-                <BookCodeSelector
-                  label={"Select book"}
-                  bookcodes={entryInfo?.bookCodes}
-                  bookCode={bookCode}
-                  setBookCode={setBookCode}
-                />
-                {bookCode !== "" &&
-                  filteredStatsTab.map((bo, n) => (
-                    <Surface key={n}>
-                      <Text>
-                        <Text variant="subtitle2" style={styles.columnText}>
-                          {bo.field.substring(1)} :{" "}
-                        </Text>
-                        <Text>{bo.stat}</Text>
+    <View style={styles.container}>
+      <View style={styles.frame}>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContent}
+          indicatorStyle="white"
+        >
+          <Surface>
+            <Surface style={styles.modalView}>
+              {!entryInfo ? (
+                <VStack>
+                  <ActivityIndicator size="large" color="cornflowerblue" />
+                  <Text style={styles.centeredView}>Loading ...</Text>
+                </VStack>
+              ) : (
+                <Surface>
+                  <Surface>
+                    <Text variant="h5" style={styles.columnText}>
+                      {entryInfo.title}
+                    </Text>
+                    <Text variant="h6" style={styles.h6}>
+                      Details
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Abrreviation :{" "}
                       </Text>
-                      <BR></BR>
-                    </Surface>
-                  ))}
-              </Surface>
+                      <Text>{entryInfo.abbreviation}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Copyright :{" "}
+                      </Text>
+                      <Text>{entryInfo.copyright}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Language :{" "}
+                      </Text>
+                      <Text>{`${entryInfo.language}, ${entryInfo.textDirection}`}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Data Source :{" "}
+                      </Text>
+                      <Text>{source}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Owner :{" "}
+                      </Text>
+                      <Text>{entryInfo.owner}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Entry ID :{" "}
+                      </Text>
+                      <Text>{id}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Revision :{" "}
+                      </Text>
+                      <Text>{revision}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Content :{" "}
+                      </Text>
+                      <Text>{`${entryInfo.nOT} OT, ${entryInfo.nNT} NT`}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Number of Chapters :{" "}
+                      </Text>
+                      <Text>{entryInfo.nChapters}</Text>
+                    </Text>
+                    <Text>
+                      <Text variant="subtitle2" style={styles.columnText}>
+                        Number of Verses :{" "}
+                      </Text>
+                      <Text>{entryInfo.nVerses}</Text>
+                    </Text>
+                    <Text variant="h6" style={styles.h6}>
+                      Book Resources
+                    </Text>
+                    <BookCodeSelector
+                      label={"Select book"}
+                      bookcodes={entryInfo?.bookCodes}
+                      bookCode={bookCode}
+                      setBookCode={setBookCode}
+                    />
+                    {bookCode !== "" &&
+                      filteredStatsTab.map((bo, n) => (
+                        <Surface key={n}>
+                          <Text>
+                            <Text variant="subtitle2" style={styles.columnText}>
+                              {bo.field.substring(1)} :{" "}
+                            </Text>
+                            <Text>{bo.stat}</Text>
+                          </Text>
+                          <BR></BR>
+                        </Surface>
+                      ))}
+                    {bookCode && (
+                      <FAB
+                        variant="extended"
+                        icon={() => (
+                          <FontAwesome5
+                            name="book-open"
+                            size={24}
+                            color="white"
+                          />
+                        )}
+                        label="Read"
+                        labelStyle={{ color: "white" }}
+                        color="cornflowerblue"
+                        onPress={() => {
+                          let textDir = entryInfo.textDirection;
+                          navigation.navigate("Reading", {
+                            source,
+                            id,
+                            revision,
+                            bookCode,
+                            textDir,
+                          });
+                        }}
+                        style={{
+                          alignSelf: "center",
+                        }}
+                      />
+                    )}
+                  </Surface>
+                </Surface>
+              )}
             </Surface>
-          )}
-        </Surface>
-        <Footer />
-      </Surface>
-    </ScrollView>
+            <Footer />
+          </Surface>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
@@ -209,7 +249,7 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 35,
+    padding: 15,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -232,5 +272,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     marginTop: 10,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  frame: {
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 10,
+    padding: 10,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: "center",
   },
 });

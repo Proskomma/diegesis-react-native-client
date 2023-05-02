@@ -3,10 +3,9 @@ import { Linking, StyleSheet } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
   return (
     <Surface>
-      <Header navigation={navigation} />
       <Text variant="h5" style={styles.h3}>
         Diegesis
       </Text>

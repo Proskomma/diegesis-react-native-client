@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
     backgroundColor: "cornflowerblue",
     color: "#FFF",
     p: 3,
+    borderRadius: 10,
   },
   textStyle: {
     margin: 10,

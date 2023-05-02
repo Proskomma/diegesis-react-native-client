@@ -1,6 +1,7 @@
 import { AntDesign, Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { VStack } from "@react-native-material/core";
 import { StyleSheet } from "react-native";
+import { Drawer } from "react-native-paper";
 
 export default function Header({ navigation }) {
   return (
@@ -9,7 +10,7 @@ export default function Header({ navigation }) {
         name="list"
         size={24}
         color="white"
-        onPress={() => navigation.navigate("List")}
+        onPress={() => navigation.navigate("Entries")}
       />
       <AntDesign
         name="home"

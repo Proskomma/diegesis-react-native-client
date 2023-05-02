@@ -1,7 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
-import { CheckIcon, Select } from "native-base";
-import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, ScrollView, LogBox, RefreshControl } from "react-native";
+import { CheckIcon, Select, View } from "native-base";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, ScrollView, LogBox } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
 import {
@@ -11,10 +11,9 @@ import {
   VStack,
 } from "@react-native-material/core";
 import { Surface, Text } from "@react-native-material/core";
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-export default function ReadingScreen({ navigation, route }) {
+export default function ReadingScreen({ route }) {
   const client = new ApolloClient({
     uri: "https://diegesis.bible/graphql",
     cache: new InMemoryCache(),
@@ -22,14 +21,16 @@ export default function ReadingScreen({ navigation, route }) {
   const source = route.params.source;
   const id = route.params.id;
   const revision = route.params.revision;
+  const textDir = route.params.textDir;
   const [selectedBookCode] = useState(route.params.bookCode);
 
   const memoClient = useMemo(() => client);
   const [result, setResult] = useState(null);
   const [textBlocks, setTextBlocks] = useState(null);
   const [bookChapters, setBookChapters] = useState([]);
-  const [selectedChapter, setSelectedChapter] = useState("1");
+  const [selectedChapter, setSelectedChapter] = useState(1);
   const [docLaoded, setDocLoaded] = useState(false);
+  const scrollViewRef = useRef(null);
 
   const [pk, setPk] = useState(
     new Proskomma([
@@ -124,158 +125,178 @@ export default function ReadingScreen({ navigation, route }) {
   const backwardStepClick = () => {
     if (selectedChapter > 1) {
       setSelectedChapter(selectedChapter - 1);
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
   };
 
   const forwardStepClick = () => {
     if (selectedChapter < bookChapters.data.docSet.document.cIndexes.length) {
       setSelectedChapter(selectedChapter + 1);
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
   };
 
   LogBox.ignoreAllLogs();
 
   return (
-    <ScrollView style={styles.container} indicatorStyle="white">
-      <Surface>
-        <Header navigation={navigation} />
-        <Surface style={styles.modalView}>
-          {!result?.data?.docSet && (
-            <VStack>
-              <ActivityIndicator size="large" color="cornflowerblue" />
-              <Text style={styles.centeredView}>Loading ...</Text>
-            </VStack>
-          )}
-          {result?.data?.docSet && (
-            <Surface>
-              <Text style={styles.titleText}>
-                {
-                  result?.data?.docSet?.tagsKv.filter(
-                    (t) => t.key === "title"
-                  )[0].value
-                }{" "}
-                {"\n"}
-              </Text>
-              <Flex direction="column">
-                <Text style={{ marginTop: 7 }}> Select a chapter : {"\n"}</Text>
-                <Select
-                  placeholder="Choose a chapter"
-                  selectedValue={selectedChapter}
-                  mt={1}
-                  _selectedItem={{
-                    bg: "#d3d3d3",
-                    endIcon: <CheckIcon size="5" />,
-                  }}
-                  type="number"
-                >
-                  {bookChapters?.data?.docSet?.document?.cIndexes?.map(
-                    (c, n) => (
-                      <Select.Item
-                        key={n}
-                        value={c.chapter.toString()}
-                        label={c.chapter}
-                        onPress={() => setSelectedChapter(c.chapter)}
-                        style={styles.textStyle}
-                      ></Select.Item>
+    <View style={styles.container}>
+      <View style={styles.frame}>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContent}
+          indicatorStyle="white"
+          ref={scrollViewRef}
+        >
+          <Surface>
+            <Surface style={styles.modalView}>
+              {!result?.data?.docSet && (
+                <VStack>
+                  <ActivityIndicator size="large" color="cornflowerblue" />
+                  <Text style={styles.centeredView}>Loading ...</Text>
+                </VStack>
+              )}
+              {result?.data?.docSet && (
+                <Surface>
+                  <Text style={styles.titleText}>
+                    {
+                      result?.data?.docSet?.tagsKv.filter(
+                        (t) => t.key === "title"
+                      )[0].value
+                    }{" "}
+                    {"\n"}
+                  </Text>
+                  <Flex direction="column">
+                    <Text style={{ marginTop: 7 }}>
+                      {" "}
+                      Select a chapter : {"\n"}
+                    </Text>
+                    <Select
+                      placeholder={`Chapter ${selectedChapter}`}
+                      selectedValue={`Chapter ${selectedChapter}`}
+                      mt={1}
+                      _selectedItem={{
+                        bg: "#d3d3d3",
+                        endIcon: <CheckIcon size="5" />,
+                      }}
+                    >
+                      {bookChapters?.data?.docSet?.document?.cIndexes?.map(
+                        (c, n) => (
+                          <Select.Item
+                            key={n}
+                            value={c.chapter.toString()}
+                            label={`Chapter ${c.chapter}`}
+                            onPress={() => {
+                              setSelectedChapter(c.chapter);
+                            }}
+                            style={styles.textStyle}
+                          ></Select.Item>
+                        )
+                      )}
+                    </Select>
+                  </Flex>
+                  <Text>{"\n\n"}</Text>
+                  {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
+                    <Surface>
+                      <AppBar
+                        leading={() => (
+                          <AntDesign
+                            name="caretleft"
+                            style={styles.backwardArrow}
+                            onPress={() => backwardStepClick()}
+                          />
+                        )}
+                        trailing={() => (
+                          <AntDesign
+                            name="caretright"
+                            style={styles.forwardArrow}
+                            onPress={() => forwardStepClick()}
+                          />
+                        )}
+                        transparent="true"
+                      />
+                    </Surface>
+                  )}
+                  {textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
+                    (b, n) => (
+                      <Surface key={n}>
+                        <Text style={{ writingDirection: `${textDir}` }}>
+                          {b.items.map((i, n) => {
+                            if (i.type === "token") {
+                              return i.payload;
+                            } else if (
+                              i.type === "scope" &&
+                              i.subType === "start" &&
+                              i.payload.startsWith("chapter")
+                            ) {
+                              return (
+                                <Text
+                                  key={n}
+                                  style={{
+                                    writingDirection: `${textDir}`,
+                                    fontWeight: "bold",
+                                    fontSize: 40,
+                                  }}
+                                  direction={textDir}
+                                >
+                                  {i.payload.split("/")[1]}
+                                  {"\n"}
+                                </Text>
+                              );
+                            } else if (
+                              i.type === "scope" &&
+                              i.subType === "start" &&
+                              i.payload.startsWith("verses")
+                            ) {
+                              return (
+                                <Text key={n} style={styles.versesText}>
+                                  {i.payload.split("/")[1]}{" "}
+                                </Text>
+                              );
+                            } else {
+                              return "";
+                            }
+                          })}
+                          {"\n\n"}
+                        </Text>
+                      </Surface>
                     )
                   )}
-                </Select>
-              </Flex>
-              <Text>{"\n\n"}</Text>
-              {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
-                <Surface>
-                  <AppBar
-                    leading={() => (
-                      <AntDesign
-                        name="caretleft"
-                        style={styles.backwardArrow}
-                        onPress={() => backwardStepClick()}
+                  {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
+                    <Surface>
+                      <AppBar
+                        leading={() => (
+                          <AntDesign
+                            name="caretleft"
+                            style={styles.backwardArrow}
+                            onPress={() => backwardStepClick()}
+                          />
+                        )}
+                        trailing={() => (
+                          <AntDesign
+                            name="caretright"
+                            style={styles.forwardArrow}
+                            onPress={() => forwardStepClick()}
+                          />
+                        )}
+                        transparent="true"
                       />
-                    )}
-                    trailing={() => (
-                      <AntDesign
-                        name="caretright"
-                        style={styles.forwardArrow}
-                        onPress={() => forwardStepClick()}
-                      />
-                    )}
-                    transparent="true"
-                  />
-                </Surface>
-              )}
-              {textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
-                (b, n) => (
-                  <Surface key={n}>
-                    <Text>
-                      {b.items.map((i, n) => {
-                        if (i.type === "token") {
-                          return i.payload;
-                        } else if (
-                          i.type === "scope" &&
-                          i.subType === "start" &&
-                          i.payload.startsWith("chapter")
-                        ) {
-                          return (
-                            <Text key={n} style={styles.chapterText}>
-                              {i.payload.split("/")[1]}
-                              {"\n"}
-                            </Text>
-                          );
-                        } else if (
-                          i.type === "scope" &&
-                          i.subType === "start" &&
-                          i.payload.startsWith("verses")
-                        ) {
-                          return (
-                            <Text key={n} style={styles.versesText}>
-                              {i.payload.split("/")[1]}{" "}
-                            </Text>
-                          );
-                        } else {
-                          return "";
-                        }
-                      })}
-                      {"\n\n"}
-                    </Text>
-                  </Surface>
-                )
-              )}
-              {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
-                <Surface>
-                  <AppBar
-                    leading={() => (
-                      <AntDesign
-                        name="caretleft"
-                        style={styles.backwardArrow}
-                        onPress={() => backwardStepClick()}
-                      />
-                    )}
-                    trailing={() => (
-                      <AntDesign
-                        name="caretright"
-                        style={styles.forwardArrow}
-                        onPress={() => forwardStepClick()}
-                      />
-                    )}
-                    transparent="true"
-                  />
+                    </Surface>
+                  )}
                 </Surface>
               )}
             </Surface>
-          )}
-        </Surface>
-        <Footer />
-      </Surface>
-    </ScrollView>
+            <Footer />
+          </Surface>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   centeredView: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+    marginTop: 50,
   },
   listStyle: {
     flexDirection: "row",
@@ -311,11 +332,9 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 20,
     fontWeight: "bold",
-    justifyContent: "center",
-    alignItems: "center",
+    textAlign: "center",
   },
   chapterText: {
-    textAlign: "left",
     fontWeight: "bold",
     fontSize: 40,
   },
@@ -340,5 +359,21 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: "black",
     fontSize: 20,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  frame: {
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 10,
+    padding: 10,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: "center",
   },
 });

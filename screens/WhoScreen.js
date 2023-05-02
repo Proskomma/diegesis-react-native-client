@@ -1,13 +1,10 @@
-import { LI, UL } from "@expo/html-elements";
 import { Linking, StyleSheet } from "react-native";
 import Footer from "../components/Footer";
-import Header from "../components/Header";
 import { ListItem, Surface, Text } from "@react-native-material/core";
 
-export default function WhoScreen({ navigation }) {
+export default function WhoScreen() {
   return (
     <Surface>
-      <Header navigation={navigation} />
       <Text variant="h5" style={styles.h3}>
         Who's behind Diegesis?
       </Text>
