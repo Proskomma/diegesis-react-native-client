@@ -1,13 +1,13 @@
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { StyleSheet, ScrollView, LogBox } from "react-native";
 import { gql, ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import { BR } from "@expo/html-elements";
-import { ActivityIndicator, FAB, VStack } from "@react-native-material/core";
+import { ActivityIndicator, VStack } from "@react-native-material/core";
 import { Surface, Text } from "@react-native-material/core";
 import Footer from "../components/Footer";
 import BookCodeSelector from "../components/BookCodeSelector";
-import { Center, View } from "native-base";
+import { Button, Center, Icon, View } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function DetailsScreen({ navigation, route }) {
@@ -199,18 +199,9 @@ export default function DetailsScreen({ navigation, route }) {
                         </Surface>
                       ))}
                     {bookCode && (
-                      <FAB
-                        variant="extended"
-                        icon={() => (
-                          <FontAwesome5
-                            name="book-open"
-                            size={24}
-                            color="white"
-                          />
-                        )}
-                        label="Read"
-                        labelStyle={{ color: "white" }}
-                        color="cornflowerblue"
+                      <Button
+                        style={{ width: "30%", alignSelf: "center" }}
+                        leftIcon={<Icon as={Ionicons} name="book" size="sm" />}
                         onPress={() => {
                           let textDir = entryInfo.textDirection;
                           navigation.navigate("Reading", {
@@ -221,10 +212,9 @@ export default function DetailsScreen({ navigation, route }) {
                             textDir,
                           });
                         }}
-                        style={{
-                          alignSelf: "center",
-                        }}
-                      />
+                      >
+                        Read
+                      </Button>
                     )}
                   </Surface>
                 </Surface>
