@@ -32,6 +32,7 @@
     "fs": "npm:crypto-browserify",
     "native-base": "^3.4.25",
     "proskomma-core": "0.9.10",
+    "proskomma-json-tools": "^0.7.0",
     "react": "18.2.0",
     "react-native": "0.71.0",
     "react-native-gesture-handler": "~2.8.0",

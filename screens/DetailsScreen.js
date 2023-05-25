@@ -12,7 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function DetailsScreen({ navigation, route }) {
   const client = new ApolloClient({
-    uri: "https://diegesis.bible/graphql",
+    uri: "https://cjvh.proskomma.bible",
     cache: new InMemoryCache(),
   });
   const [source] = useState(route.params.source);

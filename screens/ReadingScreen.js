@@ -12,6 +12,9 @@ import {
 } from "@react-native-material/core";
 import { Surface, Text } from "@react-native-material/core";
 import Footer from "../components/Footer";
+import { renderers } from "../renderer/render2reactNative";
+import { SofriaRenderFromProskomma } from "proskomma-json-tools";
+import sofria2WebActions from "../renderer/sofria2web";
 
 export default function ReadingScreen({ route }) {
   const client = new ApolloClient({
@@ -20,6 +23,7 @@ export default function ReadingScreen({ route }) {
   });
   const source = route.params.source;
   const id = route.params.id;
+  console.log(id);
   const revision = route.params.revision;
   const textDir = route.params.textDir;
   const [selectedBookCode] = useState(route.params.bookCode);
@@ -31,7 +35,6 @@ export default function ReadingScreen({ route }) {
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [docLaoded, setDocLoaded] = useState(false);
   const scrollViewRef = useRef(null);
-
   const [pk, setPk] = useState(
     new Proskomma([
       {
@@ -71,7 +74,13 @@ export default function ReadingScreen({ route }) {
     };
     doLoad();
   }, []);
-
+  if (docLaoded) {
+    const docResult = pk.gqlQuerySync(`{documents {
+      docSetId
+      id
+    }
+  }`);
+  }
   // runs once, when the page is rendered
   useEffect(() => {
     const doOrgs = async () => {
@@ -79,6 +88,7 @@ export default function ReadingScreen({ route }) {
             { id 
               documents{
                 id 
+                docSetId
                 bookCode : header(id:"bookCode")
               }
               tagsKv{
@@ -93,6 +103,7 @@ export default function ReadingScreen({ route }) {
             { 
               document(bookCode :"${selectedBookCode}")
                 {
+                  id
                   cIndexes {
                     chapter
                   }
@@ -101,6 +112,7 @@ export default function ReadingScreen({ route }) {
           }`;
       let queryResult = pk.gqlQuerySync(query2);
       setBookChapters(queryResult);
+      console.log(bookChapters);
       const query3 = `{ docSet (id:"${source}_${id}_${revision}") 
             { 
               id
@@ -136,8 +148,50 @@ export default function ReadingScreen({ route }) {
     }
   };
 
-  LogBox.ignoreAllLogs();
+  const output = {};
+  if (docLaoded && bookChapters?.data?.docSet) {
+    const config = {
+      showWordAtts: false,
+      showTitles: true,
+      showHeadings: true,
+      showIntroductions: true,
+      showFootnotes: true,
+      showXrefs: true,
+      showParaStyles: true,
+      showCharacterMarkup: true,
+      showChapterLabels: true,
+      showVersesLabels: true,
+      // block: { nb: 1 },
+      chapters: [`${selectedChapter}`],
+      selectedBcvNotes: [],
+      // displayPartOfText: { 'begin' },
+      bcvNotesCallback: (bcv) => {
+        setBcvNoteRef(bcv);
+      },
+      renderers,
+    };
+    const renderer = new SofriaRenderFromProskomma({
+      proskomma: pk,
+      actions: sofria2WebActions,
+    });
+    const context = {};
+    const workspace = {};
+    let numberToRender = 1;
+    try {
+      renderer.renderDocument1({
+        docId: bookChapters?.data?.docSet?.document?.id,
+        config,
+        context,
+        workspace,
+        output,
+      });
+    } catch (err) {
+      console.log("Renderer", err);
+      throw err;
+    }
+  }
 
+  LogBox.ignoreAllLogs();
   return (
     <View style={styles.container}>
       <View style={styles.frame}>
@@ -215,51 +269,7 @@ export default function ReadingScreen({ route }) {
                       />
                     </Surface>
                   )}
-                  {textBlocks?.data?.docSet?.document?.mainSequence?.blocks?.map(
-                    (b, n) => (
-                      <Surface key={n}>
-                        <Text style={{ writingDirection: `${textDir}` }}>
-                          {b.items.map((i, n) => {
-                            if (i.type === "token") {
-                              return i.payload;
-                            } else if (
-                              i.type === "scope" &&
-                              i.subType === "start" &&
-                              i.payload.startsWith("chapter")
-                            ) {
-                              return (
-                                <Text
-                                  key={n}
-                                  style={{
-                                    writingDirection: `${textDir}`,
-                                    fontWeight: "bold",
-                                    fontSize: 40,
-                                  }}
-                                  direction={textDir}
-                                >
-                                  {i.payload.split("/")[1]}
-                                  {"\n"}
-                                </Text>
-                              );
-                            } else if (
-                              i.type === "scope" &&
-                              i.subType === "start" &&
-                              i.payload.startsWith("verses")
-                            ) {
-                              return (
-                                <Text key={n} style={styles.versesText}>
-                                  {i.payload.split("/")[1]}{" "}
-                                </Text>
-                              );
-                            } else {
-                              return "";
-                            }
-                          })}
-                          {"\n\n"}
-                        </Text>
-                      </Surface>
-                    )
-                  )}
+                  {<View>{output.paras}</View>}
                   {textBlocks?.data?.docSet?.document?.mainSequence?.blocks && (
                     <Surface>
                       <AppBar
