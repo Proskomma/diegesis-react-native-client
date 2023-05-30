@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DiegesisClient",
-    "slug": "Diegesis Client",
+    "slug": "Diegesis_Client",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,20 +12,23 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/93eadab3-5111-4075-86d0-762b41ce1e3d"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "requireFullScreen": true
+      "requireFullScreen": true,
+      "bundleIdentifier": "DiegedisClient"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.achraf99.Diegesis_Client"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,6 +40,14 @@
           "initialOrientation": "DEFAULT"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "93eadab3-5111-4075-86d0-762b41ce1e3d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
   }
 }

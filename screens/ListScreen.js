@@ -99,7 +99,7 @@ export default function ListScreen({ navigation }) {
         >
           <Surface>
             <Text variant="h5" style={styles.titleText}>
-              Entries
+              All entries
             </Text>
             <Surface>
               {data.localEntries.map((el, kv) => {

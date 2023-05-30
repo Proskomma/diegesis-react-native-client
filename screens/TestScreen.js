@@ -9,7 +9,7 @@ import { Text, View } from "native-base";
 
 export default function TestScreen() {
   const client = new ApolloClient({
-    uri: "https://diegesis.bible/graphql",
+    uri: "https://cjvh.proskomma.bible",
     cache: new InMemoryCache(),
   });
 
@@ -34,25 +34,6 @@ export default function TestScreen() {
       },
     ])
   );
-  // useEffect(() => {
-  //   const doLoad = async () => {
-  //     const result = await memoClient.query({
-  //       query: gql`
-  //     {
-  //       localEntry(source: "${source}", id: "${id}", revision: "${revision}") {
-  //         canonResource(type: "succinct") {
-  //           content
-  //         }
-  //       }
-  //     }
-  //   `,
-  //     });
-  //     const succinct = result.data.localEntry.canonResource.content;
-  //     pk.loadSuccinctDocSet(JSON.parse(succinct));
-  //     setDocLoaded(true);
-  //   };
-  //   doLoad();
-  // }, []);
   useEffect(() => {
     const docResult = pk.gqlQuerySync(`{documents {
       docSetId
@@ -61,50 +42,6 @@ export default function TestScreen() {
   }`);
     console.log(docResult);
   }, []);
-
-  // const config = {
-  //   showWordAtts: false,
-  //   showTitles: true,
-  //   showHeadings: true,
-  //   showIntroductions: true,
-  //   showFootnotes: true,
-  //   showXrefs: true,
-  //   showParaStyles: true,
-  //   showCharacterMarkup: true,
-  //   showChapterLabels: true,
-  //   showVersesLabels: true,
-  //   // block: { nb: 1 },
-  //   // chapters: [`${documentResult.data.document.cIndexes.shift().chapter}`],
-  //   selectedBcvNotes: [],
-  //   // displayPartOfText: { 'begin' },
-  //   bcvNotesCallback: (bcv) => {
-  //     setBcvNoteRef(bcv);
-  //   },
-  //   renderers,
-  // };
-  // const renderer = new SofriaRenderFromProskomma({
-  //   proskomma: pk,
-  //   actions: sofria2WebActions,
-  // });
-  // const output = {};
-  // const context = {};
-  // const workspace = {};
-  // let numberToRender = 1;
-  // const docId = "901dcd9744e1bf69";
-  // try {
-  //   renderer.renderDocument1({
-  //     docId: docId,
-  //     config,
-  //     context,
-  //     workspace,
-  //     output,
-  //   });
-  // } catch (err) {
-  //   console.log("Renderer", err);
-  //   throw err;
-  // }
-
-  // console.log("Outpout:", output.paras);
 
   LogBox.ignoreAllLogs();
 

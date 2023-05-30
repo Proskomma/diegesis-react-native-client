@@ -18,12 +18,11 @@ import sofria2WebActions from "../renderer/sofria2web";
 
 export default function ReadingScreen({ route }) {
   const client = new ApolloClient({
-    uri: "https://diegesis.bible/graphql",
+    uri: "https://cjvh.proskomma.bible",
     cache: new InMemoryCache(),
   });
   const source = route.params.source;
   const id = route.params.id;
-  console.log(id);
   const revision = route.params.revision;
   const textDir = route.params.textDir;
   const [selectedBookCode] = useState(route.params.bookCode);
@@ -112,7 +111,6 @@ export default function ReadingScreen({ route }) {
           }`;
       let queryResult = pk.gqlQuerySync(query2);
       setBookChapters(queryResult);
-      console.log(bookChapters);
       const query3 = `{ docSet (id:"${source}_${id}_${revision}") 
             { 
               id
