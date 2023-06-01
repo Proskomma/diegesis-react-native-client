@@ -61,7 +61,8 @@ export default function DetailsScreen({ navigation, route }) {
     }
     if (entry) {
       AsyncStorage.getAllKeys((err, keys) => {
-        if (keys.includes(`newEntry.${id}`)) {
+        console.log("Keys :", keys);
+        if (keys && keys.includes(`newEntry.${id}`)) {
           console.log("Key already exists !");
         } else {
           AsyncStorage.setItem(`newEntry.${id}`, entry)
@@ -84,7 +85,7 @@ export default function DetailsScreen({ navigation, route }) {
     );
   }
   if (error) {
-    return <GqlError error={error} />;
+    return <Text>{error.message}</Text>;
   }
   const entryInfo = data.localEntry;
 

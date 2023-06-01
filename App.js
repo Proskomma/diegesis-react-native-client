@@ -1,15 +1,21 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import { NativeBaseProvider } from "native-base";
-import DetailsScreen from "./screens/DetailsScreen";
 import HomeScreen from "./screens/HomeScreen";
 import HowScreen from "./screens/HowScreren";
-import ListScreen from "./screens/ListScreen";
-import ReadingScreen from "./screens/ReadingScreen";
 import WhoScreen from "./screens/WhoScreen";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+  createDrawerNavigator,
+} from "@react-navigation/drawer";
 import EntriesScreen from "./screens/EntriesScreen";
+import { Button } from "react-native";
+import { clearCache } from "react-native-clear-cache";
+
+import React from "react";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import SettingsScreen from "./screens/SettingsScreen";
 
 export default function App() {
   const client = new ApolloClient({
@@ -28,6 +34,7 @@ export default function App() {
             <Drawer.Screen name="Home" component={HomeScreen} />
             <Drawer.Screen name="How" component={HowScreen} />
             <Drawer.Screen name="Who" component={WhoScreen} />
+            <Drawer.Screen name="Settings" component={SettingsScreen} />
           </Drawer.Navigator>
         </NavigationContainer>
       </NativeBaseProvider>

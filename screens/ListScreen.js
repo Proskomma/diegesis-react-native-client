@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { Proskomma } from "proskomma-core";
 import { gql, useQuery } from "@apollo/client";
@@ -8,7 +8,7 @@ import { SimpleAccordion } from "react-native-simple-accordion";
 import { ListItem, Surface, Text } from "@react-native-material/core";
 import { ActivityIndicator } from "@react-native-material/core";
 import { Center, View } from "native-base";
-import { createStackNavigator } from "@react-navigation/stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const pk = new Proskomma([
   {
@@ -28,13 +28,14 @@ const pk = new Proskomma([
   },
 ]);
 export default function ListScreen({ navigation }) {
+  const [downloadedVersions, setDownloadedVersions] = useState(0);
   const [searchOrg, setSearchOrg] = useState("all");
   const [searchOwner, setSearchOwner] = useState("");
   const [searchType, setSearchType] = useState("");
   const [searchLang, setSearchLang] = useState("");
   const [searchText, setSearchText] = useState("");
   const [sortField, setSortField] = useState("title");
-  const Stack = createStackNavigator();
+  const [searchedKey, setSearchedKey] = useState(false);
 
   const [features, setFeatures] = useState({
     introductions: false,
@@ -47,6 +48,13 @@ export default function ListScreen({ navigation }) {
     content: false,
     occurrences: false,
   });
+
+  useEffect(() => {
+    AsyncStorage.getAllKeys(async (err, keys) => {
+      setDownloadedVersions(keys.length);
+      console.log("downloaded:", downloadedVersions);
+    });
+  }, [downloadedVersions]);
 
   const searchTerms = {
     org: searchOrg,
@@ -88,8 +96,25 @@ export default function ListScreen({ navigation }) {
     );
   }
   if (error) {
-    return <GqlError error={error} />;
+    return <Text>{error.message}</Text>;
   }
+
+  const numberOfVersions = data.localEntries.length;
+
+  const searchKey = async (key) => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const searchedKey = keys.includes(key);
+      if (searchedKey) {
+        setSearchedKey(true);
+      } else {
+        setSearchedKey(false);
+      }
+    } catch (error) {
+      Alert.alert("Error clearing cache:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.frame}>
@@ -100,6 +125,9 @@ export default function ListScreen({ navigation }) {
           <Surface>
             <Text variant="h5" style={styles.titleText}>
               All entries
+            </Text>
+            <Text style={styles.titleText}>
+              {`${numberOfVersions} Versions Available , ${downloadedVersions} downloaded`}
             </Text>
             <Surface>
               {data.localEntries.map((el, kv) => {
@@ -139,7 +167,6 @@ export default function ListScreen({ navigation }) {
                                 revision,
                               });
                             }}
-                            color="blue"
                           />
                         </Surface>
                       }
@@ -199,5 +226,8 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: "center",
+  },
+  InCacheStyle: {
+    color: "red",
   },
 });

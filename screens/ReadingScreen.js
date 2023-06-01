@@ -159,10 +159,8 @@ export default function ReadingScreen({ route }) {
       showCharacterMarkup: true,
       showChapterLabels: true,
       showVersesLabels: true,
-      // block: { nb: 1 },
       chapters: [`${selectedChapter}`],
       selectedBcvNotes: [],
-      // displayPartOfText: { 'begin' },
       bcvNotesCallback: (bcv) => {
         setBcvNoteRef(bcv);
       },
@@ -174,7 +172,6 @@ export default function ReadingScreen({ route }) {
     });
     const context = {};
     const workspace = {};
-    let numberToRender = 1;
     try {
       renderer.renderDocument1({
         docId: bookChapters?.data?.docSet?.document?.id,
