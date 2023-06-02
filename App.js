@@ -19,7 +19,7 @@ import SettingsScreen from "./screens/SettingsScreen";
 
 export default function App() {
   const client = new ApolloClient({
-    uri: "https://cjvh.proskomma.bible",
+    uri: "https://diegesis.bible/graphql",
     cache: new InMemoryCache(),
   });
 

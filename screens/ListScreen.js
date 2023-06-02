@@ -35,7 +35,7 @@ export default function ListScreen({ navigation }) {
   const [searchLang, setSearchLang] = useState("");
   const [searchText, setSearchText] = useState("");
   const [sortField, setSortField] = useState("title");
-  const [searchedKey, setSearchedKey] = useState(false);
+  const [tableData, setTableData] = useState([]);
 
   const [features, setFeatures] = useState({
     introductions: false,
@@ -49,13 +49,6 @@ export default function ListScreen({ navigation }) {
     occurrences: false,
   });
 
-  useEffect(() => {
-    AsyncStorage.getAllKeys(async (err, keys) => {
-      setDownloadedVersions(keys.length);
-      console.log("downloaded:", downloadedVersions);
-    });
-  }, [downloadedVersions]);
-
   const searchTerms = {
     org: searchOrg,
     owner: searchOwner,
@@ -66,6 +59,35 @@ export default function ListScreen({ navigation }) {
     sortField: sortField,
   };
 
+  const searchKey = async (data) => {
+    const tableData = [];
+
+    for (const el of data) {
+      const doesKeyExist = await AsyncStorage.getItem(`newEntry.${el.transId}`);
+      tableData.push({
+        key: `newEntry.${el.transId}`,
+        exists: doesKeyExist !== null ? "Yes" : "No",
+      });
+    }
+
+    return tableData;
+  };
+
+  useEffect(() => {
+    AsyncStorage.getAllKeys((err, keys) => {
+      setDownloadedVersions(keys.length);
+      console.log("downloaded:", downloadedVersions);
+    });
+
+    const fetchData = async () => {
+      const dataEntries = data.localEntries;
+
+      const result = await searchKey(dataEntries);
+      setTableData(result);
+    };
+
+    fetchData();
+  }, [downloadedVersions]);
   const queryString = searchQuery(
     `query {
           localEntries%searchClause% {
@@ -101,20 +123,6 @@ export default function ListScreen({ navigation }) {
 
   const numberOfVersions = data.localEntries.length;
 
-  const searchKey = async (key) => {
-    try {
-      const keys = await AsyncStorage.getAllKeys();
-      const searchedKey = keys.includes(key);
-      if (searchedKey) {
-        setSearchedKey(true);
-      } else {
-        setSearchedKey(false);
-      }
-    } catch (error) {
-      Alert.alert("Error clearing cache:", error);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.frame}>
@@ -137,6 +145,22 @@ export default function ListScreen({ navigation }) {
                       title={el.title}
                       viewInside={
                         <Surface>
+                          {tableData.map((data) => {
+                            if (data.exists === "Yes") {
+                              if (data.key === `newEntry.${el.transId}`) {
+                                return (
+                                  <ListItem
+                                    title={
+                                      <Text style={styles.InCacheStyle}>
+                                        Version stored in cache
+                                      </Text>
+                                    }
+                                    pressEffect="none"
+                                  />
+                                );
+                              }
+                            }
+                          })}
                           <ListItem
                             title={<Text>Resource types : {el.types}</Text>}
                             pressEffect="none"
